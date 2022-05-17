@@ -23,6 +23,6 @@ class DemoAppTests {
 
     @Test
     void dep() {
-        System.out.println(taskService);
+        repositoryService.createDeployment().addClasspathResource("processes/diagram_1.bpmn").deploy();
     }
 }

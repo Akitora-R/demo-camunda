@@ -14,7 +14,7 @@
     <name>demo-camunda</name>
     <description>demo-camunda</description>
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>17</java.version>
         <camunda.version>7.17.0</camunda.version>
     </properties>
     <dependencies>
