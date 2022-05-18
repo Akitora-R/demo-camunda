@@ -17,4 +17,11 @@ public class R<T> {
         r.data = data;
         return r;
     }
+
+    public static <T> R<T> fail(String msg) {
+        R<T> r = new R<>();
+        r.code = 1;
+        r.msg = msg;
+        return r;
+    }
 }

@@ -36,28 +36,28 @@
       <bpmn:incoming>Flow_1q6r4s6</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_1q6r4s6" sourceRef="Gateway_1dsnohj" targetRef="Event_11cd482">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approval}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!approval}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmn:error id="Error_176vi65" name="Error_3aobm46" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1i5odsa">
-      <bpmndi:BPMNEdge id="Flow_1v4d6of_di" bpmnElement="Flow_1v4d6of">
-        <di:waypoint x="188" y="117" />
-        <di:waypoint x="240" y="117" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1n7otx2_di" bpmnElement="Flow_1n7otx2">
-        <di:waypoint x="340" y="117" />
-        <di:waypoint x="395" y="117" />
+      <bpmndi:BPMNEdge id="Flow_1q6r4s6_di" bpmnElement="Flow_1q6r4s6">
+        <di:waypoint x="420" y="142" />
+        <di:waypoint x="420" y="230" />
+        <di:waypoint x="502" y="230" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0kbjdsb_di" bpmnElement="Flow_0kbjdsb">
         <di:waypoint x="445" y="117" />
         <di:waypoint x="502" y="117" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1q6r4s6_di" bpmnElement="Flow_1q6r4s6">
-        <di:waypoint x="420" y="142" />
-        <di:waypoint x="420" y="230" />
-        <di:waypoint x="502" y="230" />
+      <bpmndi:BPMNEdge id="Flow_1n7otx2_di" bpmnElement="Flow_1n7otx2">
+        <di:waypoint x="340" y="117" />
+        <di:waypoint x="395" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1v4d6of_di" bpmnElement="Flow_1v4d6of">
+        <di:waypoint x="188" y="117" />
+        <di:waypoint x="240" y="117" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="152" y="99" width="36" height="36" />
