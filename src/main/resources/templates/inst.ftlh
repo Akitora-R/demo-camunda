@@ -38,7 +38,10 @@
         btn.disabled = true;
         fetch(`/inst/del/${id}`, {
             method: "DELETE"
-        }).then(() => alert("删除成功")).catch(() => alert("发生错误")).finally(() => location.reload());
+        }).then(() => {
+            alert("删除成功");
+            location.reload();
+        }).catch(() => alert("发生错误"));
     }
     </#noparse>
 </script>
