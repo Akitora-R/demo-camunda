@@ -1,17 +1,21 @@
 package me.aki.demo.camunda.entity.bpmn;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import me.aki.demo.camunda.enums.BpmnShape;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
 import org.camunda.bpm.model.bpmn.instance.StartEvent;
 
-@RequiredArgsConstructor
 @Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class StartEventFlowNodeDTO implements FlowNodeDTO<StartEventBuilder, StartEvent> {
-    private final String id;
-    private final String label;
+    private String id;
+    private String label;
 
     @Override
     public String toString() {

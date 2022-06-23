@@ -1,8 +1,6 @@
 package me.aki.demo.camunda.entity.bpmn;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import me.aki.demo.camunda.enums.BpmnShape;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.UserTaskBuilder;
@@ -10,10 +8,11 @@ import org.camunda.bpm.model.bpmn.instance.UserTask;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserTaskFlowNodeDTO implements FlowNodeDTO<UserTaskBuilder, UserTask> {
-    private final String id;
-    private final String label;
+    private String id;
+    private String label;
     private String assignee;
 
     @Override

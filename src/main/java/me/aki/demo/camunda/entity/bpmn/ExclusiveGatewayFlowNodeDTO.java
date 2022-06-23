@@ -1,17 +1,18 @@
 package me.aki.demo.camunda.entity.bpmn;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import me.aki.demo.camunda.enums.BpmnShape;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.ExclusiveGatewayBuilder;
 import org.camunda.bpm.model.bpmn.instance.ExclusiveGateway;
 
-@RequiredArgsConstructor
 @Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ExclusiveGatewayFlowNodeDTO implements FlowNodeDTO<ExclusiveGatewayBuilder,ExclusiveGateway> {
-    private final String id;
-    private final String label;
+    private String id;
+    private String label;
 
     @Override
     public String toString() {
