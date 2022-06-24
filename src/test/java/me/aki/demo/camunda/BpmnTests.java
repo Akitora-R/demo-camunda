@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.aki.demo.camunda.delegate.ApprovedDelegate;
+import me.aki.demo.camunda.entity.Pair;
 import me.aki.demo.camunda.entity.bpmn.*;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
@@ -11,13 +12,13 @@ import org.camunda.bpm.model.bpmn.GatewayDirection;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.EndEventBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
-import org.camunda.bpm.model.bpmn.instance.Event;
-import org.camunda.bpm.model.bpmn.instance.Task;
-import org.camunda.bpm.model.bpmn.instance.UserTask;
+import org.camunda.bpm.model.bpmn.builder.UserTaskBuilder;
+import org.camunda.bpm.model.bpmn.instance.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class BpmnTests {
@@ -57,6 +58,29 @@ public class BpmnTests {
         System.out.println(Bpmn.convertToString(s.done()));
     }
 
+    public enum FlowDirection {
+        IN, OUT
+    }
+
+    static abstract class NodeParser<B extends AbstractFlowNodeBuilder<B, E>, E extends FlowNode> {
+        abstract Pair<Map<FlowDirection, Collection<SequenceFlow>>, FlowNodeDTO<B, E>> toDTO(E node);
+
+        protected Map<FlowDirection, Collection<SequenceFlow>> getFlowInfo(E node) {
+            return Map.of(FlowDirection.IN, node.getIncoming(), FlowDirection.OUT, node.getOutgoing());
+        }
+    }
+
+    public static class UserTaskNodeParser extends NodeParser<UserTaskBuilder, UserTask> {
+        @Override
+        public Pair<Map<FlowDirection, Collection<SequenceFlow>>, FlowNodeDTO<UserTaskBuilder, UserTask>> toDTO(UserTask node) {
+            UserTaskFlowNodeDTO dto = new UserTaskFlowNodeDTO();
+            dto.setLabel(node.getName());
+            dto.setId(node.getId());
+            dto.setAssignee(node.getCamundaAssignee());
+            return Pair.Of(getFlowInfo(node), dto);
+        }
+    }
+
     @Test
     void unParseFlow() {
         EndEventBuilder b = Bpmn.createExecutableProcess().name("GENERATED_PROC1")
@@ -64,14 +88,10 @@ public class BpmnTests {
                 .userTask().name("主管审核").camundaAssignee("${chargerAssignee}")
                 .endEvent().name("finish");
         BpmnModelInstance modelInstance = b.done();
-        for (Task t : modelInstance.getModelElementsByType(Task.class)) {
-            if (t instanceof UserTask ut) {
-                System.out.println("userTask " + ut.getName() + " " + ut.getCamundaAssignee());
-            }
-        }
-        for (Event event : modelInstance.getModelElementsByType(Event.class)) {
-            System.out.println("event " + event.getName());
-        }
+        Map<Class<? extends FlowNode>, ? extends NodeParser<?, ?>> p = Map.of(
+                UserTask.class, new UserTaskNodeParser()
+        );
+        // FIXME: 2022/6/24 泛型约束存在问题
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -130,17 +150,17 @@ public class BpmnTests {
         ArrayList<NodeDTO> l = new ArrayList<>();
         l.add(new StartEventFlowNodeDTO("startEvent_1", "开始"));
         l.add(new EdgeNodeDTO(null, null, null, "startEvent_1", "userTask_1"));
-        l.add(new UserTaskFlowNodeDTO("userTask_1", "审核",null));
+        l.add(new UserTaskFlowNodeDTO("userTask_1", "审核", null));
         l.add(new EdgeNodeDTO(null, null, null, "userTask_1", "exclusiveGateway_1"));
         l.add(new ExclusiveGatewayFlowNodeDTO("exclusiveGateway_1", null));
-        l.add(new EdgeNodeDTO(null,null,"a == b","exclusiveGateway_1","endEvent_1"));
+        l.add(new EdgeNodeDTO(null, null, "a == b", "exclusiveGateway_1", "endEvent_1"));
         l.add(new EndEventFlowNodeDTO("endEvent_1", "结束"));
-        l.add(new EdgeNodeDTO(null,null,null,"exclusiveGateway_1","endEvent_2"));
+        l.add(new EdgeNodeDTO(null, null, null, "exclusiveGateway_1", "endEvent_2"));
         l.add(new EndEventFlowNodeDTO("endEvent_2", "结束"));
         return l;
     }
 
-    List<NodeDTO> genTestDataByStr(){
+    List<NodeDTO> genTestDataByStr() {
         String j = """
                 [
                     {

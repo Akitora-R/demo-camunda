@@ -1,6 +1,5 @@
 package me.aki.demo.camunda.entity.bpmn;
 
-import me.aki.demo.camunda.enums.BpmnShape;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.instance.FlowNode;
 
