@@ -14,6 +14,7 @@ import me.aki.demo.camunda.enums.BpmnShape;
         @JsonSubTypes.Type(value = ExclusiveGatewayFlowNodeDTO.class, name = "EXCLUSIVE_GATEWAY"),
         @JsonSubTypes.Type(value = StartEventFlowNodeDTO.class, name = "START_EVENT"),
         @JsonSubTypes.Type(value = UserTaskFlowNodeDTO.class, name = "USER_TASK"),
+        @JsonSubTypes.Type(value = ServiceTaskFlowNodeDTO.class, name = "SERVICE_TASK"),
 })
 public interface NodeDTO {
     String getId();

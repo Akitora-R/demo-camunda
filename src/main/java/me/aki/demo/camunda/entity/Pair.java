@@ -18,4 +18,12 @@ public class Pair<K, V> {
         p.val = val;
         return p;
     }
+
+    @Override
+    public String toString() {
+        return "Pair{" +
+                "key=" + key +
+                ", val=" + val +
+                '}';
+    }
 }
