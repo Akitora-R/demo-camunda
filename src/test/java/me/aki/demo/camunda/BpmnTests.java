@@ -128,8 +128,9 @@ public class BpmnTests {
             FlowNodeDTO<?, ?> prev = nl.getPrev();
             var ss = s;
             ss = ss.moveToNode(prev.getId());
-            if (nl.getEdge().getCondition() != null) {
-                ss.condition(null, nl.getEdge().getCondition());
+            String condition = nl.getEdge().getCondition();
+            if (condition != null && !condition.isEmpty()) {
+                ss.condition(null, condition);
             }
             nl.getCurr().build(ss);
         });
@@ -176,69 +177,69 @@ public class BpmnTests {
 
     List<NodeDTO> genTestDataByStr() {
         String j = """
-            [ {
-              "id" : "userTask_1deb5357-ef27-4b24-9b0f-bcb997fc0c37",
-              "label" : "主管审核",
-              "assignee" : "${chargerAssignee}",
-              "shape" : "USER_TASK"
-            }, {
-              "id" : "endEvent_6c217e47-029c-4e94-93c2-55fa456f9a38",
-              "label" : "finish",
-              "shape" : "END_EVENT"
-            }, {
-              "id" : "endEvent_6b1e7f9b-e5a2-4d8b-bf2c-0ce14773d51c",
-              "label" : "rejected",
-              "shape" : "END_EVENT"
-            }, {
-              "id" : "startEvent_e946138b-1986-4aa2-a019-59ec00628dcd",
-              "label" : null,
-              "shape" : "START_EVENT"
-            }, {
-              "id" : "serviceTask_f83069b7-77ae-451b-88eb-0cf3ecbc0046",
-              "label" : "服务调用任务",
-              "className" : "me.aki.demo.camunda.delegate.ApprovedDelegate",
-              "shape" : "SERVICE_TASK"
-            }, {
-              "id" : "exclusiveGateway_f2e29a82-c529-433b-a299-578710aa7bf5",
-              "label" : null,
-              "shape" : "EXCLUSIVE_GATEWAY"
-            }, {
-              "id" : "sequenceFlow_9714db3b-9f80-4426-9c30-b94693ac74f4",
-              "label" : null,
-              "condition" : "",
-              "source" : "startEvent_e946138b-1986-4aa2-a019-59ec00628dcd",
-              "target" : "userTask_1deb5357-ef27-4b24-9b0f-bcb997fc0c37",
-              "shape" : "EDGE"
-            }, {
-              "id" : "sequenceFlow_f315ba53-bb4e-49f0-8839-ab60d6c6c97b",
-              "label" : null,
-              "condition" : "",
-              "source" : "userTask_1deb5357-ef27-4b24-9b0f-bcb997fc0c37",
-              "target" : "exclusiveGateway_f2e29a82-c529-433b-a299-578710aa7bf5",
-              "shape" : "EDGE"
-            }, {
-              "id" : "sequenceFlow_12872664-8ab8-474f-a5a4-e9559c8d6ba3",
-              "label" : "yes",
-              "condition" : "${approval_1}",
-              "source" : "exclusiveGateway_f2e29a82-c529-433b-a299-578710aa7bf5",
-              "target" : "serviceTask_f83069b7-77ae-451b-88eb-0cf3ecbc0046",
-              "shape" : "EDGE"
-            }, {
-              "id" : "sequenceFlow_1f173b7e-c221-432e-aaeb-5707f5417df8",
-              "label" : "no",
-              "condition" : "${!approval_2}",
-              "source" : "exclusiveGateway_f2e29a82-c529-433b-a299-578710aa7bf5",
-              "target" : "endEvent_6b1e7f9b-e5a2-4d8b-bf2c-0ce14773d51c",
-              "shape" : "EDGE"
-            }, {
-              "id" : "sequenceFlow_055a23c0-f9a4-4669-ab14-956ff259c488",
-              "label" : null,
-              "condition" : "",
-              "source" : "serviceTask_f83069b7-77ae-451b-88eb-0cf3ecbc0046",
-              "target" : "endEvent_6c217e47-029c-4e94-93c2-55fa456f9a38",
-              "shape" : "EDGE"
-            } ]
-            """;
+                [ {
+                  "id" : "userTask_1deb5357-ef27-4b24-9b0f-bcb997fc0c37",
+                  "label" : "主管审核",
+                  "assignee" : "${chargerAssignee}",
+                  "shape" : "USER_TASK"
+                }, {
+                  "id" : "endEvent_6c217e47-029c-4e94-93c2-55fa456f9a38",
+                  "label" : "finish",
+                  "shape" : "END_EVENT"
+                }, {
+                  "id" : "endEvent_6b1e7f9b-e5a2-4d8b-bf2c-0ce14773d51c",
+                  "label" : "rejected",
+                  "shape" : "END_EVENT"
+                }, {
+                  "id" : "startEvent_e946138b-1986-4aa2-a019-59ec00628dcd",
+                  "label" : null,
+                  "shape" : "START_EVENT"
+                }, {
+                  "id" : "serviceTask_f83069b7-77ae-451b-88eb-0cf3ecbc0046",
+                  "label" : "服务调用任务",
+                  "className" : "me.aki.demo.camunda.delegate.ApprovedDelegate",
+                  "shape" : "SERVICE_TASK"
+                }, {
+                  "id" : "exclusiveGateway_f2e29a82-c529-433b-a299-578710aa7bf5",
+                  "label" : null,
+                  "shape" : "EXCLUSIVE_GATEWAY"
+                }, {
+                  "id" : "sequenceFlow_9714db3b-9f80-4426-9c30-b94693ac74f4",
+                  "label" : null,
+                  "condition" : "",
+                  "source" : "startEvent_e946138b-1986-4aa2-a019-59ec00628dcd",
+                  "target" : "userTask_1deb5357-ef27-4b24-9b0f-bcb997fc0c37",
+                  "shape" : "EDGE"
+                }, {
+                  "id" : "sequenceFlow_f315ba53-bb4e-49f0-8839-ab60d6c6c97b",
+                  "label" : null,
+                  "condition" : "",
+                  "source" : "userTask_1deb5357-ef27-4b24-9b0f-bcb997fc0c37",
+                  "target" : "exclusiveGateway_f2e29a82-c529-433b-a299-578710aa7bf5",
+                  "shape" : "EDGE"
+                }, {
+                  "id" : "sequenceFlow_12872664-8ab8-474f-a5a4-e9559c8d6ba3",
+                  "label" : "yes",
+                  "condition" : "${approval_1}",
+                  "source" : "exclusiveGateway_f2e29a82-c529-433b-a299-578710aa7bf5",
+                  "target" : "serviceTask_f83069b7-77ae-451b-88eb-0cf3ecbc0046",
+                  "shape" : "EDGE"
+                }, {
+                  "id" : "sequenceFlow_1f173b7e-c221-432e-aaeb-5707f5417df8",
+                  "label" : "no",
+                  "condition" : "${!approval_2}",
+                  "source" : "exclusiveGateway_f2e29a82-c529-433b-a299-578710aa7bf5",
+                  "target" : "endEvent_6b1e7f9b-e5a2-4d8b-bf2c-0ce14773d51c",
+                  "shape" : "EDGE"
+                }, {
+                  "id" : "sequenceFlow_055a23c0-f9a4-4669-ab14-956ff259c488",
+                  "label" : null,
+                  "condition" : "",
+                  "source" : "serviceTask_f83069b7-77ae-451b-88eb-0cf3ecbc0046",
+                  "target" : "endEvent_6c217e47-029c-4e94-93c2-55fa456f9a38",
+                  "shape" : "EDGE"
+                } ]
+                """;
         try {
             return objectMapper.readValue(j, new TypeReference<>() {
             });
