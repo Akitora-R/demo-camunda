@@ -1,10 +1,10 @@
 {
-  "name": "工作流",
-  "describe": "工作流",
+  "name": "workflow",
+  "describe": "workflow",
   "avatar": "",
   "version": "4.1.1",
   "createdTime": "2022-6-28 10:18:07",
-  "updatedTime": "2022-6-30 18:35:03",
+  "updatedTime": "2022-7-4 17:55:35",
   "dbConns": [],
   "profile": {
     "default": {
@@ -1869,7 +1869,7 @@
         {
           "defKey": "SOURCE",
           "defName": "来源",
-          "comment": "枚举\nDEFAULT\n默认，EXP不填\nFORM\n表单，EXP填写FORM_ITEM_KEY\nBEAN\n通过继承X接口的Java Bean获取，EXP为Bean Name枚举",
+          "comment": "枚举DEFAULT默认，EXP不填FORM表单，EXP填写FORM_ITEM_KEYBEAN通过继承X接口的Java Bean获取，EXP为Bean Name枚举",
           "type": "",
           "len": "",
           "scale": "",
