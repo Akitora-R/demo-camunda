@@ -1,6 +1,7 @@
-package me.aki.demo.camunda.entity.bpmn;
+package me.aki.demo.camunda.entity.bpmn.impl;
 
 import lombok.*;
+import me.aki.demo.camunda.entity.bpmn.NodeDTO;
 import me.aki.demo.camunda.enums.BpmnShape;
 
 import java.util.Objects;
@@ -24,6 +25,11 @@ public class EdgeNodeDTO implements NodeDTO {
     @Override
     public BpmnShape getShape() {
         return BpmnShape.EDGE;
+    }
+
+    @Override
+    public void tidyUp() {
+
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.aki.demo.camunda.delegate.ApprovedDelegate;
 import me.aki.demo.camunda.entity.bpmn.*;
+import me.aki.demo.camunda.entity.bpmn.impl.*;
 import me.aki.demo.camunda.parser.NodeParser;
 import me.aki.demo.camunda.parser.impl.*;
 import org.camunda.bpm.model.bpmn.Bpmn;
@@ -72,8 +73,8 @@ public class BpmnTests {
         System.out.println(Bpmn.convertToString(s.done()));
     }
 
-    Map<Class<? extends FlowNode>, NodeParser<?, ?>> getMap() {
-        HashMap<Class<? extends FlowNode>, NodeParser<?, ?>> m = new HashMap<>();
+    Map<Class<? extends FlowNode>, NodeParser<?>> getMap() {
+        HashMap<Class<? extends FlowNode>, NodeParser<?>> m = new HashMap<>();
         m.put(UserTask.class, new UserTaskNodeParser());
         m.put(StartEvent.class, new StartEvenNodeParser());
         m.put(EndEvent.class, new EndEventNodeParser());
@@ -112,22 +113,22 @@ public class BpmnTests {
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     void parseFlow() {
-        List<NodeDTO> d = genTestDataByStr();
+        List<NodeDTO> d = genTestData();
+        d.forEach(NodeDTO::tidyUp);
         Map<Boolean, List<NodeDTO>> collect = d.stream().collect(Collectors.groupingBy(e -> e instanceof EdgeNodeDTO));
-        List<FlowNodeDTO<?, ?>> flowNodes = (List) collect.get(false);
+        List<FlowNodeDTO> flowNodes = (List) collect.get(false);
         List<EdgeNodeDTO> edges = (List) collect.get(true);
-        Map<String, FlowNodeDTO<?, ?>> nodeMap = flowNodes.stream().collect(Collectors.toMap(FlowNodeDTO::getId, e -> e));
-        List<FlowNodeDTO<?, ?>> startFlowNodeDTOS = flowNodes.stream().filter(e -> e instanceof StartEventFlowNodeDTO).toList();
+        Map<String, FlowNodeDTO> nodeMap = flowNodes.stream().collect(Collectors.toMap(FlowNodeDTO::getId, e -> e));
+        List<FlowNodeDTO> startFlowNodeDTOS = flowNodes.stream().filter(e -> e instanceof StartEventFlowNodeDTO).toList();
         Map<String, List<EdgeNodeDTO>> edgeMap = edges.stream().collect(Collectors.groupingBy(EdgeNodeDTO::getSource));
         assert startFlowNodeDTOS.size() == 1;
-        FlowNodeDTO<?, ?> start = startFlowNodeDTOS.get(0);
+        FlowNodeDTO start = startFlowNodeDTOS.get(0);
         ProcessBuilder builder = Bpmn.createExecutableProcess().name("GENERATED_PROC1");
         AbstractFlowNodeBuilder<?, ?> s = builder.startEvent(start.getId()).name(start.getLabel());
         HashSet<String> vertexLog = new HashSet<>();
         travelGraph(new NodeLink(null, null, start), edgeMap, nodeMap, nl -> {
-            FlowNodeDTO<?, ?> prev = nl.getPrev();
             var ss = s;
-            ss = ss.moveToNode(prev.getId());
+            ss = ss.moveToNode(nl.getPrevOutgoingNodeId());
             String condition = nl.getEdge().getCondition();
             if (condition != null && !condition.isEmpty()) {
                 ss.condition(null, condition);
@@ -141,7 +142,7 @@ public class BpmnTests {
     void travelGraph(
             NodeLink nl,
             Map<String, List<EdgeNodeDTO>> edgeMap,
-            Map<String, FlowNodeDTO<?, ?>> nodeMap,
+            Map<String, FlowNodeDTO> nodeMap,
             Consumer<NodeLink> onNode
     ) {
         if (nl.getEdge() != null) {
@@ -152,7 +153,7 @@ public class BpmnTests {
         }
     }
 
-    List<NodeLink> getNext(FlowNodeDTO<?, ?> prev, Map<String, List<EdgeNodeDTO>> edgeMap, Map<String, FlowNodeDTO<?, ?>> nodeMap) {
+    List<NodeLink> getNext(FlowNodeDTO prev, Map<String, List<EdgeNodeDTO>> edgeMap, Map<String, FlowNodeDTO> nodeMap) {
         List<EdgeNodeDTO> edgeNodes = edgeMap.get(prev.getId());
         if (edgeNodes == null) {
             return Collections.emptyList();
@@ -160,21 +161,19 @@ public class BpmnTests {
         return edgeNodes.stream().map(e -> new NodeLink(prev, e, nodeMap.get(e.getTarget()))).collect(Collectors.toList());
     }
 
-    //https://x6.antv.vision/zh/examples/showcase/practices#bpmn
     List<NodeDTO> genTestData() {
         ArrayList<NodeDTO> l = new ArrayList<>();
         l.add(new StartEventFlowNodeDTO("startEvent_1", "开始"));
         l.add(new EdgeNodeDTO(null, null, null, "startEvent_1", "userTask_1"));
-        l.add(new UserTaskFlowNodeDTO("userTask_1", "审核", null));
-        l.add(new EdgeNodeDTO(null, null, null, "userTask_1", "exclusiveGateway_1"));
-        l.add(new ExclusiveGatewayFlowNodeDTO("exclusiveGateway_1", null));
-        l.add(new EdgeNodeDTO(null, null, "a == b", "exclusiveGateway_1", "endEvent_1"));
+        l.add(new TaskFlowNodeDTO("userTask_1", null, "审核1", null));
+        l.add(new EdgeNodeDTO(null, null, null, "userTask_1", "userTask_2"));
+        l.add(new TaskFlowNodeDTO("userTask_2", null, "审核2", null));
+        l.add(new EdgeNodeDTO(null, null, null, "userTask_2", "endEvent_1"));
         l.add(new EndEventFlowNodeDTO("endEvent_1", "结束"));
-        l.add(new EdgeNodeDTO(null, null, null, "exclusiveGateway_1", "endEvent_2"));
-        l.add(new EndEventFlowNodeDTO("endEvent_2", "结束"));
         return l;
     }
 
+    //https://x6.antv.vision/zh/examples/showcase/practices#bpmn
     List<NodeDTO> genTestDataByStr() {
         String j = """
                 [ {

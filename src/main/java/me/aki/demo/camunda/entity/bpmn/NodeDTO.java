@@ -2,6 +2,7 @@ package me.aki.demo.camunda.entity.bpmn;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import me.aki.demo.camunda.entity.bpmn.impl.*;
 import me.aki.demo.camunda.enums.BpmnShape;
 
 @JsonTypeInfo(
@@ -13,8 +14,7 @@ import me.aki.demo.camunda.enums.BpmnShape;
         @JsonSubTypes.Type(value = EndEventFlowNodeDTO.class, name = "END_EVENT"),
         @JsonSubTypes.Type(value = ExclusiveGatewayFlowNodeDTO.class, name = "EXCLUSIVE_GATEWAY"),
         @JsonSubTypes.Type(value = StartEventFlowNodeDTO.class, name = "START_EVENT"),
-        @JsonSubTypes.Type(value = UserTaskFlowNodeDTO.class, name = "USER_TASK"),
-        @JsonSubTypes.Type(value = ServiceTaskFlowNodeDTO.class, name = "SERVICE_TASK"),
+        @JsonSubTypes.Type(value = TaskFlowNodeDTO.class, name = "TASK"),
 })
 public interface NodeDTO {
     String getId();
@@ -22,4 +22,6 @@ public interface NodeDTO {
     String getLabel();
 
     BpmnShape getShape();
+
+    void tidyUp();
 }

@@ -10,8 +10,8 @@ import org.camunda.bpm.model.bpmn.instance.SequenceFlow;
 import java.util.Collection;
 import java.util.Map;
 
-public abstract class NodeParser<B extends AbstractFlowNodeBuilder<B, E>, E extends FlowNode> {
-    public Pair<Map<FlowDirection, Collection<SequenceFlow>>, FlowNodeDTO<B, E>> toDTO(FlowNode node) {
+public abstract class NodeParser<E extends FlowNode> {
+    public Pair<Map<FlowDirection, Collection<SequenceFlow>>, FlowNodeDTO> toDTO(FlowNode node) {
         E e = conv(node);
         return Pair.Of(getFlowInfo(e), doConv(e));
     }
@@ -25,5 +25,5 @@ public abstract class NodeParser<B extends AbstractFlowNodeBuilder<B, E>, E exte
         return (E) node;
     }
 
-    abstract protected FlowNodeDTO<B, E> doConv(E node);
+    abstract protected FlowNodeDTO doConv(E node);
 }

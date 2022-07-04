@@ -1,19 +1,21 @@
-package me.aki.demo.camunda.entity.bpmn;
+package me.aki.demo.camunda.entity.bpmn.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import me.aki.demo.camunda.entity.bpmn.FlowNodeDTO;
 import me.aki.demo.camunda.enums.BpmnShape;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
-import org.camunda.bpm.model.bpmn.instance.StartEvent;
+
+import java.util.UUID;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class StartEventFlowNodeDTO implements FlowNodeDTO<StartEventBuilder, StartEvent> {
+public class StartEventFlowNodeDTO implements FlowNodeDTO {
     private String id;
     private String label;
 
@@ -25,6 +27,13 @@ public class StartEventFlowNodeDTO implements FlowNodeDTO<StartEventBuilder, Sta
     @Override
     public BpmnShape getShape() {
         return BpmnShape.START_EVENT;
+    }
+
+    @Override
+    public void tidyUp() {
+        if (id == null || !id.startsWith("startEvent_")) {
+            id = "startEvent_" + UUID.randomUUID();
+        }
     }
 
     @Override
