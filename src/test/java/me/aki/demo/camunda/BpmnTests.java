@@ -4,16 +4,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.aki.demo.camunda.delegate.ApprovedDelegate;
-import me.aki.demo.camunda.entity.bpmn.*;
-import me.aki.demo.camunda.entity.bpmn.impl.*;
-import me.aki.demo.camunda.parser.NodeParser;
-import me.aki.demo.camunda.parser.impl.*;
+import me.aki.demo.camunda.entity.dto.FlowNodeDTO;
+import me.aki.demo.camunda.entity.dto.NodeDTO;
+import me.aki.demo.camunda.entity.dto.NodeLink;
+import me.aki.demo.camunda.entity.dto.impl.EdgeNodeDTO;
+import me.aki.demo.camunda.entity.dto.impl.EndEventFlowNodeDTO;
+import me.aki.demo.camunda.entity.dto.impl.StartEventFlowNodeDTO;
+import me.aki.demo.camunda.entity.dto.impl.TaskFlowNodeDTO;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.GatewayDirection;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
-import org.camunda.bpm.model.bpmn.instance.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -73,49 +75,12 @@ public class BpmnTests {
         System.out.println(Bpmn.convertToString(s.done()));
     }
 
-    Map<Class<? extends FlowNode>, NodeParser<?>> getMap() {
-        HashMap<Class<? extends FlowNode>, NodeParser<?>> m = new HashMap<>();
-        m.put(UserTask.class, new UserTaskNodeParser());
-        m.put(StartEvent.class, new StartEvenNodeParser());
-        m.put(EndEvent.class, new EndEventNodeParser());
-        m.put(ExclusiveGateway.class, new ExclusiveGatewayNodeParser());
-        m.put(ServiceTask.class, new ServiceTaskNodeParser());
-        return m;
-    }
-
-    @Test
-    void unParseFlow() throws JsonProcessingException {
-        BpmnModelInstance modelInstance = genInst();
-        var p = getMap();
-        HashSet<EdgeNodeDTO> edges = new HashSet<>();
-        ArrayList<NodeDTO> nodes = new ArrayList<>();
-        for (var e : p.entrySet()) {
-            for (FlowNode flowNode : modelInstance.getModelElementsByType(e.getKey())) {
-                var dto = e.getValue().toDTO(flowNode);
-                edges.addAll(dto.getKey().values().stream().flatMap(Collection::stream).map(this::toDTO).toList());
-                nodes.add(dto.getVal());
-            }
-        }
-        nodes.addAll(edges);
-        System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(nodes));
-    }
-
-    EdgeNodeDTO toDTO(SequenceFlow flow) {
-        EdgeNodeDTO dto = new EdgeNodeDTO();
-        dto.setCondition(flow.getTextContent());
-        dto.setSource(flow.getSource().getId());
-        dto.setTarget(flow.getTarget().getId());
-        dto.setId(flow.getId());
-        dto.setLabel(flow.getName());
-        return dto;
-    }
-
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     void parseFlow() {
-        List<NodeDTO> d = genTestData();
-        d.forEach(NodeDTO::tidyUp);
-        Map<Boolean, List<NodeDTO>> collect = d.stream().collect(Collectors.groupingBy(e -> e instanceof EdgeNodeDTO));
+        List<NodeDTO> nodeList = genTestData();
+        nodeList.forEach(NodeDTO::tidyUp);
+        Map<Boolean, List<NodeDTO>> collect = nodeList.stream().collect(Collectors.groupingBy(e -> e instanceof EdgeNodeDTO));
         List<FlowNodeDTO> flowNodes = (List) collect.get(false);
         List<EdgeNodeDTO> edges = (List) collect.get(true);
         Map<String, FlowNodeDTO> nodeMap = flowNodes.stream().collect(Collectors.toMap(FlowNodeDTO::getId, e -> e));

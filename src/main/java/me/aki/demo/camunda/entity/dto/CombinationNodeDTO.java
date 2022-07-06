@@ -1,4 +1,4 @@
-package me.aki.demo.camunda.entity.bpmn;
+package me.aki.demo.camunda.entity.dto;
 
 public interface CombinationNodeDTO extends FlowNodeDTO {
     String getIncomingNodeId();

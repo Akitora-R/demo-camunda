@@ -1,15 +1,13 @@
 package me.aki.demo.camunda.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import me.aki.demo.camunda.entity.HistoricProcessInstanceVO;
-import me.aki.demo.camunda.entity.HistoricTaskInstanceVO;
+import me.aki.demo.camunda.entity.vo.HistoricProcessInstanceVO;
+import me.aki.demo.camunda.entity.vo.HistoricTaskInstanceVO;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
-import org.camunda.bpm.engine.history.HistoricProcessInstance;
-import org.camunda.bpm.engine.history.HistoricTaskInstance;
 import org.camunda.bpm.engine.history.HistoricVariableInstance;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
@@ -19,7 +17,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @Slf4j

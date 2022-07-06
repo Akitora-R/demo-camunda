@@ -1,4 +1,4 @@
-package me.aki.demo.camunda.entity;
+package me.aki.demo.camunda.entity.dto;
 
 import lombok.Getter;
 

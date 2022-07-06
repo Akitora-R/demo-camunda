@@ -1,7 +1,6 @@
-package me.aki.demo.camunda.entity.bpmn;
+package me.aki.demo.camunda.entity.dto;
 
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
-import org.camunda.bpm.model.bpmn.instance.FlowNode;
 
 public interface FlowNodeDTO extends NodeDTO {
     AbstractFlowNodeBuilder<?, ?> build(AbstractFlowNodeBuilder<?, ?> builder);

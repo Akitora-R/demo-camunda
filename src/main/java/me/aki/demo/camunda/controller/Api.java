@@ -1,7 +1,7 @@
 package me.aki.demo.camunda.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import me.aki.demo.camunda.entity.R;
+import me.aki.demo.camunda.entity.dto.R;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.runtime.ProcessInstance;

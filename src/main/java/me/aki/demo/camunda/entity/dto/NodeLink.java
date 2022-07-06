@@ -1,9 +1,9 @@
-package me.aki.demo.camunda.entity.bpmn;
+package me.aki.demo.camunda.entity.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import me.aki.demo.camunda.entity.bpmn.impl.EdgeNodeDTO;
+import me.aki.demo.camunda.entity.dto.impl.EdgeNodeDTO;
 
 @Data
 @AllArgsConstructor

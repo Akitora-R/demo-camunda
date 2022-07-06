@@ -1,4 +1,4 @@
-package me.aki.demo.camunda.entity;
+package me.aki.demo.camunda.entity.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package me.aki.demo.camunda.entity;
+package me.aki.demo.camunda.util;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +12,7 @@ public class Pair<K, V> {
     public Pair() {
     }
 
-    public static <K, V> Pair<K, V> Of(K key, V val) {
+    public static <K, V> Pair<K, V> of(K key, V val) {
         Pair<K, V> p = new Pair<>();
         p.key = key;
         p.val = val;

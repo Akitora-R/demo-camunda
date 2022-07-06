@@ -1,10 +1,10 @@
-package me.aki.demo.camunda.entity.bpmn.impl;
+package me.aki.demo.camunda.entity.dto.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import me.aki.demo.camunda.entity.bpmn.FlowNodeDTO;
+import me.aki.demo.camunda.entity.dto.FlowNodeDTO;
 import me.aki.demo.camunda.enums.BpmnShape;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.ExclusiveGatewayBuilder;

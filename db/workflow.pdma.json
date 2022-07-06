@@ -4,7 +4,7 @@
   "avatar": "",
   "version": "4.1.1",
   "createdTime": "2022-6-28 10:18:07",
-  "updatedTime": "2022-7-6 14:29:59",
+  "updatedTime": "2022-7-6 18:58:35",
   "dbConns": [],
   "profile": {
     "default": {
@@ -706,7 +706,7 @@
         },
         {
           "defKey": "PROC_DEF_CODE",
-          "defName": "",
+          "defName": "流程代码",
           "comment": "",
           "type": "",
           "len": "",
@@ -723,7 +723,7 @@
         },
         {
           "defKey": "PROC_DEF_NAME",
-          "defName": "",
+          "defName": "流程名",
           "comment": "",
           "type": "",
           "len": "",
@@ -740,7 +740,7 @@
         },
         {
           "defKey": "ORIGINAL_JSON",
-          "defName": "",
+          "defName": "原始流程json",
           "comment": "",
           "type": "",
           "len": "",
@@ -1073,7 +1073,7 @@
         },
         {
           "defKey": "PROC_DEF_ID",
-          "defName": "",
+          "defName": "流程定义ID",
           "comment": "",
           "type": "",
           "len": "",
@@ -1090,7 +1090,7 @@
         },
         {
           "defKey": "TITLE",
-          "defName": "",
+          "defName": "表单标题",
           "comment": "",
           "type": "",
           "len": "",

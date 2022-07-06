@@ -1,8 +1,8 @@
-package me.aki.demo.camunda.entity.bpmn;
+package me.aki.demo.camunda.entity.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import me.aki.demo.camunda.entity.bpmn.impl.*;
+import me.aki.demo.camunda.entity.dto.impl.*;
 import me.aki.demo.camunda.enums.BpmnShape;
 
 @JsonTypeInfo(
