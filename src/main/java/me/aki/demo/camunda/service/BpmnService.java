@@ -1,11 +1,11 @@
 package me.aki.demo.camunda.service;
 
 import cn.hutool.core.lang.Assert;
-import me.aki.demo.camunda.entity.dto.FlowNodeDTO;
-import me.aki.demo.camunda.entity.dto.NodeDTO;
-import me.aki.demo.camunda.entity.dto.NodeLink;
-import me.aki.demo.camunda.entity.dto.impl.EdgeNodeDTO;
-import me.aki.demo.camunda.entity.dto.impl.StartEventFlowNodeDTO;
+import me.aki.demo.camunda.entity.dto.node.FlowNodeDTO;
+import me.aki.demo.camunda.entity.dto.node.NodeDTO;
+import me.aki.demo.camunda.entity.dto.node.NodeLink;
+import me.aki.demo.camunda.entity.dto.node.impl.EdgeNodeDTO;
+import me.aki.demo.camunda.entity.dto.node.impl.StartEventFlowNodeDTO;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;

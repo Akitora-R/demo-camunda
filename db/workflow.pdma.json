@@ -4,7 +4,7 @@
   "avatar": "",
   "version": "4.1.1",
   "createdTime": "2022-6-28 10:18:07",
-  "updatedTime": "2022-7-6 18:58:35",
+  "updatedTime": "2022-7-7 10:34:52",
   "dbConns": [],
   "profile": {
     "default": {
@@ -587,7 +587,7 @@
         "hideInGraph": true
       }
     ],
-    "menuWidth": "272px"
+    "menuWidth": "252px"
   },
   "entities": [
     {
@@ -1423,7 +1423,7 @@
         },
         {
           "defKey": "FORM_DEF_ID",
-          "defName": "",
+          "defName": "表单定义ID",
           "comment": "",
           "type": "",
           "len": "",
@@ -1440,7 +1440,7 @@
         },
         {
           "defKey": "FORM_ITEM_LABEL",
-          "defName": "",
+          "defName": "组件标签",
           "comment": "",
           "type": "",
           "len": "",
@@ -1457,7 +1457,7 @@
         },
         {
           "defKey": "FORM_ITEM_KEY",
-          "defName": "",
+          "defName": "组件KEY",
           "comment": "",
           "type": "",
           "len": "",
@@ -1474,7 +1474,7 @@
         },
         {
           "defKey": "FORM_ITEM_TYPE",
-          "defName": "",
+          "defName": "组件类型",
           "comment": "",
           "type": "",
           "len": "",
@@ -1542,7 +1542,7 @@
         },
         {
           "defKey": "VAL_TYPE",
-          "defName": "",
+          "defName": "值类型",
           "comment": "",
           "type": "",
           "len": "",
@@ -1779,7 +1779,7 @@
         },
         {
           "defKey": "FORM_ITEM_KEY",
-          "defName": "",
+          "defName": "组件KEY",
           "comment": "",
           "type": "",
           "len": "",
@@ -1796,7 +1796,7 @@
         },
         {
           "defKey": "PROP_KEY",
-          "defName": "",
+          "defName": "属性KEY",
           "comment": "",
           "type": "",
           "len": "",
@@ -1813,7 +1813,7 @@
         },
         {
           "defKey": "PROP_VAL",
-          "defName": "",
+          "defName": "属性值",
           "comment": "",
           "type": "",
           "len": "",
@@ -3541,7 +3541,11 @@
         "defKey": "短整型",
         "defName": "",
         "id": "1569C0EC-1F0C-479E-B5FE-AFAAB0206B97",
-        "29D1CE08-4C35-4D2D-AAA9-23D93305B52E": "TINYINT"
+        "29D1CE08-4C35-4D2D-AAA9-23D93305B52E": "TINYINT",
+        "797A1496-D649-4261-89B4-544132EC3F36": "Boolean",
+        "A2EE7B4A-CE62-4290-B00C-B26C1BF18073": "Boolean",
+        "895CFD1D-4273-4D32-A2C4-CAC70200AB5B": "Boolean",
+        "B91D99E0-9B7C-416C-8737-B760957DAF09": "bool"
       }
     ]
   },

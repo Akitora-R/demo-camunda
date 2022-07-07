@@ -1,4 +1,4 @@
-package me.aki.demo.camunda.entity.dto;
+package me.aki.demo.camunda.entity.dto.node;
 
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 

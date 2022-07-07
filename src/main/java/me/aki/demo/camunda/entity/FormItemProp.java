@@ -6,27 +6,26 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.time.LocalDateTime;
-
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("WF_FORM_DEF")
-public class FormDef extends BaseEntity {
-    /**
-     * ID
-     */
+@TableName("WF_FORM_ITEM_PROP")
+public class FormItemProp extends BaseEntity {
     @ApiModelProperty(name = "ID")
     @TableId
     private String id;
     /**
-     * 流程定义ID
+     * 组件KEY
      */
-    @ApiModelProperty(name = "流程定义ID")
-    private String procDefId;
+    @ApiModelProperty(name = "组件KEY")
+    private String formItemKey;
     /**
-     * 表单标题
+     * 属性KEY
      */
-    @ApiModelProperty(name = "表单标题")
-    private String title;
-
+    @ApiModelProperty(name = "属性KEY")
+    private String propKey;
+    /**
+     * 属性值
+     */
+    @ApiModelProperty(name = "属性值")
+    private String propVal;
 }

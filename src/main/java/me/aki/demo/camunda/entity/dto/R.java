@@ -11,6 +11,12 @@ public class R<T> {
     private R() {
     }
 
+    public static <T> R<T> ok() {
+        R<T> r = new R<>();
+        r.code = 0;
+        return r;
+    }
+
     public static <T> R<T> ok(T data) {
         R<T> r = new R<>();
         r.code = 0;
