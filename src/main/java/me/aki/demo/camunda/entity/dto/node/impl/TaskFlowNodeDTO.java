@@ -44,7 +44,7 @@ public class TaskFlowNodeDTO implements CombinationNodeDTO {
     @Override
     public AbstractFlowNodeBuilder<?, ?> build(AbstractFlowNodeBuilder<?, ?> builder) {
         String middleGatewayId = "exclusiveGateway_" + UUID.randomUUID();
-        String a = "approval_" + UUID.randomUUID();
+        String a = "approval_" + UUID.randomUUID().toString().replace("-", "");
         return builder
                 .userTask().id(id).name(label).camundaAssignee(assignee).camundaOutputParameter(a, "${approval}")
                 .exclusiveGateway().id(middleGatewayId).condition("reject", String.format("${!%s}", a))

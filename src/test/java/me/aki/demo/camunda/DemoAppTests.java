@@ -1,15 +1,18 @@
 package me.aki.demo.camunda;
 
+import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
+import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
+@Slf4j
 class DemoAppTests {
     @Autowired
     private RepositoryService repositoryService;
@@ -26,11 +29,20 @@ class DemoAppTests {
 
     @Test
     void dep() {
-        repositoryService.createDeployment().addClasspathResource("processes/diagram_2.bpmn").deploy();
+        repositoryService.createDeployment()
+                .addClasspathResource("processes/generated_diagram_1.bpmn")
+                .deploy();
     }
 
     @Test
-    void completeTask(){
+    void listProcDef() {
+        for (ProcessDefinition processDefinition : repositoryService.createProcessDefinitionQuery().active().latestVersion().list()) {
+            log.info("{} {}",processDefinition);
+        }
+    }
+
+    @Test
+    void completeTask() {
         taskService.complete("4fbec3f6-d720-11ec-8bc5-2c16dbac39c7");
     }
 

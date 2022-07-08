@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 @Data
@@ -27,6 +28,7 @@ public class FormDef extends BaseEntity {
      * 表单标题
      */
     @ApiModelProperty(name = "表单标题")
+    @NotBlank
     private String title;
 
 }

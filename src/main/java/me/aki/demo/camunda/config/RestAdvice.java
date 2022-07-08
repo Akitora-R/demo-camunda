@@ -1,19 +1,25 @@
 package me.aki.demo.camunda.config;
 
+import lombok.extern.slf4j.Slf4j;
 import me.aki.demo.camunda.entity.dto.R;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.validation.BindException;
+import org.springframework.web.bind.annotation.*;
 
-@ControllerAdvice
+@RestControllerAdvice
+@Slf4j
 public class RestAdvice {
+    @ExceptionHandler(BindException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public R<?> handleBindingException(BindException e) {
+        log.warn("参数校验失败: {}", e.getMessage());
+        return R.fail(e.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ResponseBody
     public R<?> handleException(Exception e) {
-        e.printStackTrace();
+        log.error("", e);
         return R.fail(e.getMessage());
     }
 }
