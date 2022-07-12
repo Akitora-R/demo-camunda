@@ -1,5 +1,6 @@
 package me.aki.demo.camunda.entity.dto.node.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import me.aki.demo.camunda.entity.dto.node.CombinationNodeDTO;
 import me.aki.demo.camunda.enums.BpmnShape;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 
+import javax.validation.constraints.NotBlank;
 import java.util.UUID;
 
 @Getter
@@ -16,13 +18,16 @@ import java.util.UUID;
 @NoArgsConstructor
 public class TaskFlowNodeDTO implements CombinationNodeDTO {
     private String id;
+    @NotBlank
+    private String code;
+    @JsonIgnore
     private String outgoingNodeId;
     private String label;
     private String assignee;
 
     @Override
     public String toString() {
-        return String.format("[UserTask (%s)]", label);
+        return String.format("[UserTask (%s - %s)]", code, label);
     }
 
     @Override

@@ -6,10 +6,17 @@ import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
+import org.camunda.bpm.engine.history.HistoricProcessInstance;
+import org.camunda.bpm.engine.history.HistoricVariableInstance;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
+import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.bpm.engine.task.Task;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.List;
+import java.util.Map;
 
 @SpringBootTest
 @Slf4j
@@ -37,13 +44,53 @@ class DemoAppTests {
     @Test
     void listProcDef() {
         for (ProcessDefinition processDefinition : repositoryService.createProcessDefinitionQuery().active().latestVersion().list()) {
-            log.info("{} {}",processDefinition);
+            log.info("{} {}", processDefinition.getId(), processDefinition.getResourceName());
+        }
+    }
+
+    String bk = "some_bk2";
+
+    @Test
+    void startProc() {
+        ProcessInstance processInstance = runtimeService.startProcessInstanceById("b011d11d-fea1-11ec-962e-2c16dbac39c7", bk);
+        System.out.println(processInstance.getId());
+    }
+
+    @Test
+    void queryRunningInst() {
+        for (Task task : taskService.createTaskQuery().active().list()) {
+            log.info("{} {}", task.getId(), task.getName());
         }
     }
 
     @Test
     void completeTask() {
-        taskService.complete("4fbec3f6-d720-11ec-8bc5-2c16dbac39c7");
+        String procInstId = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(bk).singleResult().getId();
+        List<Task> taskList = taskService.createTaskQuery().processInstanceId(procInstId).list();
+        for (Task task : taskList) {
+            taskService.complete(task.getId(), Map.of("approval", false));
+        }
+    }
+
+    @Test
+    void queryHistoryAct() {
+        for (HistoricProcessInstance historicProcessInstance : historyService.createHistoricProcessInstanceQuery().completed().processInstanceBusinessKey(bk).list()) {
+            log.info("{}", historicProcessInstance);
+            for (HistoricActivityInstance historicActivityInstance : historyService.createHistoricActivityInstanceQuery().processInstanceId(historicProcessInstance.getId()).list()) {
+                log.info("{} {}", historicActivityInstance.getActivityType(), historicActivityInstance);
+            }
+        }
+    }
+
+    @Test
+    void queryHistoricVar() {
+        for (HistoricProcessInstance historicProcessInstance : historyService.createHistoricProcessInstanceQuery().completed().processInstanceBusinessKey(bk).list()) {
+            log.info("{}", historicProcessInstance);
+            List<HistoricVariableInstance> varList = historyService.createHistoricVariableInstanceQuery().processInstanceId(historicProcessInstance.getId()).list();
+            for (HistoricVariableInstance v : varList) {
+                System.out.println(v);
+            }
+        }
     }
 
     @Test

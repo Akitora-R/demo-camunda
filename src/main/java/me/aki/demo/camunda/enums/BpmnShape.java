@@ -4,7 +4,6 @@ public enum BpmnShape {
     START_EVENT,
     END_EVENT,
     TASK,
-    SERVICE_TASK,
     EXCLUSIVE_GATEWAY,
     EDGE
 }
