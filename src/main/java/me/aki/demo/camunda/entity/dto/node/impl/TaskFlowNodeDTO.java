@@ -19,6 +19,7 @@ import java.util.UUID;
 public class TaskFlowNodeDTO implements CombinationNodeDTO {
     private String id;
     @NotBlank
+    @javax.validation.constraints.Pattern(regexp = "^(?!\\d)\\w+$", message = "code只可由字母数字以及下划线组成，并且不能由数字开头。")
     private String code;
     @JsonIgnore
     private String outgoingNodeId;
@@ -49,12 +50,12 @@ public class TaskFlowNodeDTO implements CombinationNodeDTO {
     @Override
     public AbstractFlowNodeBuilder<?, ?> build(AbstractFlowNodeBuilder<?, ?> builder) {
         String middleGatewayId = "exclusiveGateway_" + UUID.randomUUID();
-        String a = "approval_" + UUID.randomUUID().toString().replace("-", "");
+        String varName = String.format("%s_approval", code);
         return builder
-                .userTask().id(id).name(label).camundaAssignee(assignee).camundaOutputParameter(a, "${approval}")
-                .exclusiveGateway().id(middleGatewayId).condition("reject", String.format("${!%s}", a))
+                .userTask().id(id).name(label).camundaAssignee(assignee).camundaOutputParameter(varName, "${approval}")
+                .exclusiveGateway().id(middleGatewayId).condition("reject", String.format("${!%s}", varName))
                 .endEvent()
-                .moveToNode(middleGatewayId).condition("approve", String.format("${%s}", a))
+                .moveToNode(middleGatewayId).condition("approve", String.format("${%s}", varName))
                 .exclusiveGateway().id(outgoingNodeId);
     }
 

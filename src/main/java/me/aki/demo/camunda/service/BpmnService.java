@@ -6,6 +6,7 @@ import me.aki.demo.camunda.entity.dto.node.NodeDTO;
 import me.aki.demo.camunda.entity.dto.node.NodeLink;
 import me.aki.demo.camunda.entity.dto.node.impl.EdgeNodeDTO;
 import me.aki.demo.camunda.entity.dto.node.impl.StartEventFlowNodeDTO;
+import me.aki.demo.camunda.entity.dto.node.impl.TaskFlowNodeDTO;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
@@ -24,6 +25,13 @@ public class BpmnService {
     @SuppressWarnings({"unchecked", "rawtypes"})
     public BpmnModelInstance parse(String procName, List<NodeDTO> nodeList) {
         nodeList.forEach(NodeDTO::tidyUp);
+        // 为保证根据每个task code生成的变量不重复，必须校验所有task节点中的code不重复。
+        nodeList.stream()
+                .filter(n -> n instanceof TaskFlowNodeDTO)
+                .map(n -> (TaskFlowNodeDTO) n)
+                .collect(Collectors.groupingBy(TaskFlowNodeDTO::getCode))
+                .values()
+                .forEach(nList -> Assert.isTrue(nList.size() < 2, "所有Task节点中的code不可重复！存在重复节点:[{}]", nList));
         Map<Boolean, List<NodeDTO>> collect = nodeList.stream().collect(Collectors.groupingBy(e -> e instanceof EdgeNodeDTO));
         List<FlowNodeDTO> flowNodes = (List) collect.get(false);
         List<EdgeNodeDTO> edges = (List) collect.get(true);
