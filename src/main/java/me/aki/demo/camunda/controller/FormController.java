@@ -20,7 +20,7 @@ public class FormController {
 
     @PostMapping("/create")
     public R<FormDTO> create(@RequestBody @Validated FormDTO dto) {
-//        formDefService.saveDTO(dto);
+        formDefService.saveDTO(dto);
         return R.ok(dto);
     }
 }

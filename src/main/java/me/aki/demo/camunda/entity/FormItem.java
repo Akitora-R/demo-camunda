@@ -5,6 +5,9 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import me.aki.demo.camunda.enums.FormItemType;
+
+import javax.validation.constraints.NotNull;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -34,8 +37,9 @@ public class FormItem extends BaseEntity {
     /**
      * 组件类型
      */
+    @NotNull
     @ApiModelProperty(name = "组件类型")
-    private String formItemType;
+    private FormItemType formItemType;
     /**
      * 是否必填
      */
