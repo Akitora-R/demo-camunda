@@ -14,10 +14,15 @@ public class FormItemProp extends BaseEntity {
     @TableId
     private String id;
     /**
-     * 组件KEY
+     * 父组件id
      */
-    @ApiModelProperty(name = "组件KEY")
-    private String formItemKey;
+    @ApiModelProperty(name = "父属性ID")
+    private String parentPropId;
+    /**
+     * 组件ID
+     */
+    @ApiModelProperty(name = "组件ID")
+    private String formItemId;
     /**
      * 属性KEY
      */

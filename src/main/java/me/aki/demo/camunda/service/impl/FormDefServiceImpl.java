@@ -2,7 +2,7 @@ package me.aki.demo.camunda.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import me.aki.demo.camunda.entity.FormDef;
-import me.aki.demo.camunda.entity.dto.FormDTO;
+import me.aki.demo.camunda.entity.dto.FormDefDTO;
 import me.aki.demo.camunda.mapper.FormDefMapper;
 import me.aki.demo.camunda.service.FormDefService;
 import me.aki.demo.camunda.service.FormItemService;
@@ -19,7 +19,7 @@ public class FormDefServiceImpl extends ServiceImpl<FormDefMapper, FormDef> impl
     }
 
     @Override
-    public void saveDTO(FormDTO dto) {
+    public void saveDTO(FormDefDTO dto) {
         save(dto.getFormDef());
         dto.getFormItemDTOList().forEach(formItemService::saveDTO);
     }

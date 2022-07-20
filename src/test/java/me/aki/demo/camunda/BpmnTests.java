@@ -131,9 +131,9 @@ public class BpmnTests {
         ArrayList<NodeDTO> l = new ArrayList<>();
         l.add(new StartEventFlowNodeDTO("startEvent_1", "开始"));
         l.add(new EdgeNodeDTO(null, null, null, "startEvent_1", "userTask_1"));
-        l.add(new TaskFlowNodeDTO("userTask_1", "userTask_1", null, "审核1", null));
+//        l.add(new TaskFlowNodeDTO("userTask_1", "userTask_1", null, "审核1", null));
         l.add(new EdgeNodeDTO(null, null, null, "userTask_1", "userTask_2"));
-        l.add(new TaskFlowNodeDTO("userTask_2", "userTask_2", null, "审核2", null));
+//        l.add(new TaskFlowNodeDTO("userTask_2", "userTask_2", null, "审核2", null));
         l.add(new EdgeNodeDTO(null, null, null, "userTask_2", "endEvent_1"));
         l.add(new EndEventFlowNodeDTO("endEvent_1", "结束"));
         return l;

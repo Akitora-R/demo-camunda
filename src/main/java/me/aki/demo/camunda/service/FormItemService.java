@@ -2,8 +2,8 @@ package me.aki.demo.camunda.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import me.aki.demo.camunda.entity.FormItem;
-import me.aki.demo.camunda.entity.dto.FormDTO;
+import me.aki.demo.camunda.entity.dto.FormDefDTO;
 
 public interface FormItemService extends IService<FormItem> {
-    void saveDTO(FormDTO.FormItemDTO dto);
+    void saveDTO(FormDefDTO.FormItemDTO dto);
 }

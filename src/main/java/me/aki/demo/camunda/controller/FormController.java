@@ -1,6 +1,6 @@
 package me.aki.demo.camunda.controller;
 
-import me.aki.demo.camunda.entity.dto.FormDTO;
+import me.aki.demo.camunda.entity.dto.FormDefDTO;
 import me.aki.demo.camunda.entity.dto.R;
 import me.aki.demo.camunda.service.FormDefService;
 import org.springframework.validation.annotation.Validated;
@@ -19,7 +19,7 @@ public class FormController {
     }
 
     @PostMapping("/create")
-    public R<FormDTO> create(@RequestBody @Validated FormDTO dto) {
+    public R<FormDefDTO> create(@RequestBody @Validated FormDefDTO dto) {
         formDefService.saveDTO(dto);
         return R.ok(dto);
     }

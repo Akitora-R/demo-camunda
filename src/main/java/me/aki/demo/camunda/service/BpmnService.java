@@ -31,7 +31,7 @@ public class BpmnService {
                 .map(n -> (TaskFlowNodeDTO) n)
                 .collect(Collectors.groupingBy(TaskFlowNodeDTO::getCode))
                 .values()
-                .forEach(nList -> Assert.isTrue(nList.size() < 2, "所有Task节点中的code不可重复！存在重复节点:[{}]", nList));
+                .forEach(nList -> Assert.isTrue(nList.size() < 2, "所有Task节点中的code不可重复！存在重复节点:{}", nList));
         Map<Boolean, List<NodeDTO>> collect = nodeList.stream().collect(Collectors.groupingBy(e -> e instanceof EdgeNodeDTO));
         List<FlowNodeDTO> flowNodes = (List) collect.get(false);
         List<EdgeNodeDTO> edges = (List) collect.get(true);
@@ -43,6 +43,7 @@ public class BpmnService {
         ProcessBuilder builder = Bpmn.createExecutableProcess().name(procName);
         AbstractFlowNodeBuilder<?, ?> s = builder.startEvent(start.getId()).name(start.getLabel());
 //        HashSet<String> vertexLog = new HashSet<>();
+        // FIXME: 2022/7/20 循环图尚未实现
         travelGraph(new NodeLink(null, null, start), edgeMap, nodeMap, nl -> {
             var ss = s;
             ss = ss.moveToNode(nl.getPrevOutgoingNodeId());
