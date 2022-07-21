@@ -1,12 +1,16 @@
 package me.aki.demo.camunda.service;
 
 import cn.hutool.core.lang.Assert;
+import me.aki.demo.camunda.entity.ProcDef;
+import me.aki.demo.camunda.entity.dto.ProcDefDTO;
 import me.aki.demo.camunda.entity.dto.node.FlowNodeDTO;
 import me.aki.demo.camunda.entity.dto.node.NodeDTO;
 import me.aki.demo.camunda.entity.dto.node.NodeLink;
 import me.aki.demo.camunda.entity.dto.node.impl.EdgeNodeDTO;
 import me.aki.demo.camunda.entity.dto.node.impl.StartEventFlowNodeDTO;
 import me.aki.demo.camunda.entity.dto.node.impl.TaskFlowNodeDTO;
+import org.camunda.bpm.engine.RepositoryService;
+import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
@@ -21,6 +25,24 @@ import java.util.stream.Collectors;
 
 @Service
 public class BpmnService {
+
+    private final ProcDefService procDefService;
+    private final FormDefService formDefService;
+    private final RepositoryService repositoryService;
+
+    public BpmnService(ProcDefService procDefService, FormDefService formDefService, RepositoryService repositoryService) {
+        this.procDefService = procDefService;
+        this.formDefService = formDefService;
+        this.repositoryService = repositoryService;
+    }
+
+    public void createBpmnProcess(ProcDefDTO dto) {
+        BpmnModelInstance instance = parse(dto.getProcDefName(), dto.getNodeList());
+        repositoryService.createDeployment().name(dto.getProcDefName()).addModelInstance("generatedDef.bpmn.xml", instance).deploy();
+        ProcDef procDef = procDefService.toEntity(dto);
+        procDef.setCamundaProcDefId(instance.getDefinitions().getId());
+        formDefService.saveDTO(dto.getFormDefDTO());
+    }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public BpmnModelInstance parse(String procName, List<NodeDTO> nodeList) {

@@ -4,7 +4,7 @@
   "avatar": "",
   "version": "4.1.1",
   "createdTime": "2022-6-28 10:18:07",
-  "updatedTime": "2022-7-19 15:16:04",
+  "updatedTime": "2022-7-21 18:15:40",
   "dbConns": [],
   "profile": {
     "default": {
@@ -688,7 +688,7 @@
           "uiHint": ""
         },
         {
-          "defKey": "ACT_ID",
+          "defKey": "CAMUNDA_PROC_DEF_ID",
           "defName": "Camunda PROC DEF ID",
           "comment": "",
           "type": "",
@@ -2347,7 +2347,7 @@
           "id": "E9F5E6EC-745D-4B9C-80C4-CBD0F99C776C"
         },
         {
-          "defKey": "ACT_BUSINESS_KEY",
+          "defKey": "CAMUNDA_PROC_INST_BUSINESS_KEY",
           "defName": "",
           "comment": "",
           "type": "",
@@ -2488,6 +2488,14 @@
           "myField": "FD6CFBFB-93C3-4867-8F19-714EE756A9BF",
           "refEntity": "87095D42-5A09-41B5-8971-C34EA21AC8A7",
           "refField": "34896036-7F8F-4155-8B56-118EEB29FF04",
+          "myRows": "n",
+          "refRows": "1",
+          "innerType": ""
+        },
+        {
+          "myField": "E9F5E6EC-745D-4B9C-80C4-CBD0F99C776C",
+          "refEntity": "EBD1ADD5-C40D-4A73-AC13-1996015811B3",
+          "refField": "DBBCCCF0-D9F8-4EC8-BADA-31C2F61ACB6A",
           "myRows": "n",
           "refRows": "1",
           "innerType": ""
@@ -3835,6 +3843,33 @@
             "fillColor": "#ACDAFC"
           },
           {
+            "id": "070d2c34-c915-4bfc-91cb-fee2d5001f4b",
+            "shape": "erdRelation",
+            "source": {
+              "cell": "cb9a3bf1-a9d0-4156-b27b-e0ba48ce54f7",
+              "port": "DBBCCCF0-D9F8-4EC8-BADA-31C2F61ACB6A%out"
+            },
+            "target": {
+              "cell": "d62756a7-6e89-41f1-bb17-36867164678b",
+              "port": "E9F5E6EC-745D-4B9C-80C4-CBD0F99C776C%in"
+            },
+            "relation": "1:n",
+            "fillColor": "#ACDAFC",
+            "router": {
+              "name": "manhattan"
+            }
+          },
+          {
+            "id": "cb9a3bf1-a9d0-4156-b27b-e0ba48ce54f7",
+            "shape": "table",
+            "position": {
+              "x": -220,
+              "y": -30
+            },
+            "count": 0,
+            "originKey": "EBD1ADD5-C40D-4A73-AC13-1996015811B3"
+          },
+          {
             "id": "dc5f9327-a9a5-4085-992f-d13c29d5b744",
             "shape": "table",
             "position": {
@@ -3855,34 +3890,14 @@
             "originKey": "87095D42-5A09-41B5-8971-C34EA21AC8A7"
           },
           {
-            "id": "cb9a3bf1-a9d0-4156-b27b-e0ba48ce54f7",
+            "id": "8eb82c98-63b8-4fee-a4b8-088faee75ac1",
             "shape": "table",
             "position": {
               "x": -220,
-              "y": -30
+              "y": 348
             },
             "count": 0,
-            "originKey": "EBD1ADD5-C40D-4A73-AC13-1996015811B3"
-          },
-          {
-            "id": "d62756a7-6e89-41f1-bb17-36867164678b",
-            "shape": "table",
-            "position": {
-              "x": 240,
-              "y": -30
-            },
-            "count": 0,
-            "originKey": "79EA3C91-E60B-4973-B5F6-2786BB82D8E5"
-          },
-          {
-            "id": "b1fed587-6d3a-4e02-b5d0-803b6d2086f8",
-            "shape": "table",
-            "position": {
-              "x": 235,
-              "y": 154.5
-            },
-            "count": 0,
-            "originKey": "BBE8D17A-7FA0-4EDB-95C1-CBA21209A5C2"
+            "originKey": "109ADE60-BF0B-4D09-B62E-C2C5CD317197"
           },
           {
             "id": "1ca72159-1112-41a4-9443-00970d6c4838",
@@ -3895,14 +3910,24 @@
             "originKey": "01248EF4-AC90-4053-B948-F92BB101E755"
           },
           {
-            "id": "8eb82c98-63b8-4fee-a4b8-088faee75ac1",
+            "id": "b1fed587-6d3a-4e02-b5d0-803b6d2086f8",
             "shape": "table",
             "position": {
-              "x": -220,
-              "y": 348
+              "x": 235,
+              "y": 154.5
             },
             "count": 0,
-            "originKey": "109ADE60-BF0B-4D09-B62E-C2C5CD317197"
+            "originKey": "BBE8D17A-7FA0-4EDB-95C1-CBA21209A5C2"
+          },
+          {
+            "id": "d62756a7-6e89-41f1-bb17-36867164678b",
+            "shape": "table",
+            "position": {
+              "x": 235,
+              "y": -30
+            },
+            "count": 0,
+            "originKey": "79EA3C91-E60B-4973-B5F6-2786BB82D8E5"
           }
         ]
       },

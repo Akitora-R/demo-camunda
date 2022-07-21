@@ -19,10 +19,10 @@ public class ProcDef extends BaseEntity {
     @TableId
     private String id;
     /**
-     * Camunda PROC DEF ID
+     * Camunda process definition ID
      */
-    @ApiModelProperty(name = "Camunda PROC DEF ID")
-    private String actId;
+    @ApiModelProperty(name = "Camunda process definition ID")
+    private String camundaProcDefId;
     /**
      * 流程代码
      */

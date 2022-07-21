@@ -2,6 +2,7 @@ package me.aki.demo.camunda.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("WF_FORM_DEF")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FormDef extends BaseEntity {
     /**
      * ID

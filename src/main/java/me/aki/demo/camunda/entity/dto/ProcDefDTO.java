@@ -1,5 +1,6 @@
 package me.aki.demo.camunda.entity.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import me.aki.demo.camunda.entity.dto.node.NodeDTO;
@@ -11,6 +12,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProcDefDTO {
     private String id;
     /**
