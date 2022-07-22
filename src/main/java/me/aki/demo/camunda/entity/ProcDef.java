@@ -26,8 +26,8 @@ public class ProcDef extends BaseEntity {
     /**
      * 流程代码
      */
-    @ApiModelProperty(name = "流程代码")
-    private String procDefCode;
+    @ApiModelProperty(name = "Camunda process definition KEY")
+    private String camundaProcDefKey;
     /**
      * 流程名
      */

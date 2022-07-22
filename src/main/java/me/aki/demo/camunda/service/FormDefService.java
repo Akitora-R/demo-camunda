@@ -7,5 +7,5 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface FormDefService extends IService<FormDef> {
-    void saveDTO(FormDefDTO dto);
+    void saveDTO(String procDefId, FormDefDTO dto);
 }

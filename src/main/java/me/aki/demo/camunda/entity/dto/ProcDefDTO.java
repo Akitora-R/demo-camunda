@@ -15,12 +15,13 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProcDefDTO {
     private String id;
-    /**
-     * 流程代码
-     */
-    @ApiModelProperty(name = "流程代码")
-    @NotBlank
-    private String procDefCode;
+//    /**
+//     * 流程代码
+//     * 真的有必要存在吗
+//     */
+//    @ApiModelProperty(name = "流程代码")
+//    @NotBlank
+//    private String procDefCode;
     /**
      * 流程名
      */

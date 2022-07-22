@@ -9,13 +9,14 @@ import me.aki.demo.camunda.entity.dto.node.NodeLink;
 import me.aki.demo.camunda.entity.dto.node.impl.EdgeNodeDTO;
 import me.aki.demo.camunda.entity.dto.node.impl.StartEventFlowNodeDTO;
 import me.aki.demo.camunda.entity.dto.node.impl.TaskFlowNodeDTO;
+import me.aki.demo.camunda.entity.vo.ProcDefVO;
 import org.camunda.bpm.engine.RepositoryService;
-import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class BpmnService {
 
     private final ProcDefService procDefService;
@@ -36,12 +38,28 @@ public class BpmnService {
         this.repositoryService = repositoryService;
     }
 
+    public ProcDefVO getProcDefVOById(String id) {
+        ProcDef procDef = procDefService.getById(id);
+        if (procDef == null) {
+            return null;
+        }
+        ProcDefVO vo = new ProcDefVO();
+        vo.setProcDef(procDef);
+        var processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey(procDef.getCamundaProcDefKey()).singleResult();
+        vo.setCamundaProcessDefinition(processDefinition);
+        return vo;
+    }
+
     public void createBpmnProcess(ProcDefDTO dto) {
         BpmnModelInstance instance = parse(dto.getProcDefName(), dto.getNodeList());
-        repositoryService.createDeployment().name(dto.getProcDefName()).addModelInstance("generatedDef.bpmn.xml", instance).deploy();
+        var deploy = repositoryService.createDeployment().name(dto.getProcDefName()).addModelInstance("generatedDef.bpmn", instance).deployWithResult();
+        Assert.isTrue(deploy.getDeployedProcessDefinitions().size() == 1, "部署流程出错");
+        var pd = deploy.getDeployedProcessDefinitions().get(0);
         ProcDef procDef = procDefService.toEntity(dto);
-        procDef.setCamundaProcDefId(instance.getDefinitions().getId());
-        formDefService.saveDTO(dto.getFormDefDTO());
+        procDef.setCamundaProcDefId(pd.getId());
+        procDef.setCamundaProcDefKey(pd.getKey());
+        procDefService.save(procDef);
+        formDefService.saveDTO(procDef.getId(), dto.getFormDefDTO());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

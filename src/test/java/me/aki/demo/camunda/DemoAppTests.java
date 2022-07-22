@@ -37,14 +37,14 @@ class DemoAppTests {
     @Test
     void dep() {
         repositoryService.createDeployment()
-                .addClasspathResource("processes/generated_diagram_1.bpmn")
+                .addClasspathResource("demo_processes/generated_diagram_1.bpmn")
                 .deploy();
     }
 
     @Test
     void listProcDef() {
         for (ProcessDefinition processDefinition : repositoryService.createProcessDefinitionQuery().active().latestVersion().list()) {
-            log.info("{} {}", processDefinition.getId(), processDefinition.getResourceName());
+            log.info("{} {} {}", processDefinition.getId(), processDefinition.getKey(), processDefinition.getName());
         }
     }
 

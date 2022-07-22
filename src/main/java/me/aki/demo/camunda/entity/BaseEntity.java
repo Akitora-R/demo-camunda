@@ -1,10 +1,16 @@
 package me.aki.demo.camunda.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Getter
+@Setter
 public class BaseEntity {
     /**
      * 创建人
@@ -20,6 +26,7 @@ public class BaseEntity {
      * 创建时间
      */
     @ApiModelProperty(name = "创建时间")
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime crtTm;
     /**
      * 修改人
@@ -35,68 +42,13 @@ public class BaseEntity {
      * 修改时间
      */
     @ApiModelProperty(name = "修改时间")
+    @TableField(fill = FieldFill.UPDATE)
     private LocalDateTime mdfTm;
     /**
      * 租户ID
      */
     @ApiModelProperty(name = "租户ID")
     private String tenantId;
-
-    public String getCrtId() {
-        return crtId;
-    }
-
-    public void setCrtId(String crtId) {
-        this.crtId = crtId;
-    }
-
-    public String getCrtOrgCode() {
-        return crtOrgCode;
-    }
-
-    public void setCrtOrgCode(String crtOrgCode) {
-        this.crtOrgCode = crtOrgCode;
-    }
-
-    public LocalDateTime getCrtTm() {
-        return crtTm;
-    }
-
-    public void setCrtTm(LocalDateTime crtTm) {
-        this.crtTm = crtTm;
-    }
-
-    public String getMdfId() {
-        return mdfId;
-    }
-
-    public void setMdfId(String mdfId) {
-        this.mdfId = mdfId;
-    }
-
-    public String getMdfOrgCode() {
-        return mdfOrgCode;
-    }
-
-    public void setMdfOrgCode(String mdfOrgCode) {
-        this.mdfOrgCode = mdfOrgCode;
-    }
-
-    public LocalDateTime getMdfTm() {
-        return mdfTm;
-    }
-
-    public void setMdfTm(LocalDateTime mdfTm) {
-        this.mdfTm = mdfTm;
-    }
-
-    public String getTenantId() {
-        return tenantId;
-    }
-
-    public void setTenantId(String tenantId) {
-        this.tenantId = tenantId;
-    }
 
     @Override
     public boolean equals(Object o) {

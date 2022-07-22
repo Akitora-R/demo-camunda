@@ -50,15 +50,17 @@ public class FormItemServiceImpl extends ServiceImpl<FormItemMapper, FormItem> i
     }
 
     @Override
-    public void saveDTO(FormDefDTO.FormItemDTO dto) {
+    public void saveDTO(String formDefId, FormDefDTO.FormItemDTO dto) {
         FormItem formItem = dto.getFormItem();
+        formItem.setFormDefId(formDefId);
         save(formItem);
         // TODO: 2022/7/19 apply validation
-        var formItemId = formItem.getId();
+        final var formItemId = formItem.getId();
         formItemPropService.lambdaUpdate().eq(FormItemProp::getFormItemId, formItemId).remove();
         TreeUtils.travelTreeBFS(dto.getFormItemPropList(), FormDefDTO.FormItemPropDTO::getChildren, ni -> {
             String pId = Optional.ofNullable(ni.getParentNode()).map(FormDefDTO.FormItemPropDTO::getId).orElse("0");
             FormItemProp e = toEntity(ni.getNode());
+            e.setFormItemId(formItemId);
             e.setParentPropId(pId);
             formItemPropService.save(e);
             ni.getNode().setId(e.getId());

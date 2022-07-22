@@ -1,9 +1,13 @@
 package me.aki.demo.camunda.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.extern.slf4j.Slf4j;
+import me.aki.demo.camunda.entity.ProcDef;
 import me.aki.demo.camunda.entity.dto.ProcDefDTO;
 import me.aki.demo.camunda.entity.dto.R;
+import me.aki.demo.camunda.entity.vo.ProcDefVO;
 import me.aki.demo.camunda.service.BpmnService;
+import me.aki.demo.camunda.service.ProcDefService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,29 +17,31 @@ import org.springframework.web.bind.annotation.*;
 public class ProcController {
 
     private final BpmnService bpmnService;
+    private final ProcDefService procDefService;
 
-    public ProcController(BpmnService bpmnService) {
+    public ProcController(BpmnService bpmnService, ProcDefService procDefService) {
         this.bpmnService = bpmnService;
+        this.procDefService = procDefService;
     }
 
     @PostMapping("/definition")
-    public R<Object> createDefinition(
+    public R<ProcDefDTO> createDefinition(
             @RequestBody
             @Validated
             ProcDefDTO dto) {
-        log.info("{}", dto);
         bpmnService.createBpmnProcess(dto);
-        return R.ok();
+        return R.ok(dto);
     }
 
     @GetMapping("/definition")
-    public R<Object> listDefinition() {
-        return R.ok();
+    public R<IPage<ProcDef>> listDefinition(@RequestParam(defaultValue = "1") Integer page,
+                                            @RequestParam(defaultValue = "10") Integer size) {
+        return R.ok(procDefService.page(page, size));
     }
 
     @GetMapping("/definition/{id}")
-    public R<Object> getDefinitionDetail(@PathVariable String id) {
-        return R.ok();
+    public R<ProcDefVO> getDefinitionDetail(@PathVariable String id) {
+        return R.ok(bpmnService.getProcDefVOById(id));
     }
 
     @DeleteMapping("/definition/{id}")

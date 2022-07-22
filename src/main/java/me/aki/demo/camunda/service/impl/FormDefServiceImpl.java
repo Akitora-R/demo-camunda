@@ -19,8 +19,9 @@ public class FormDefServiceImpl extends ServiceImpl<FormDefMapper, FormDef> impl
     }
 
     @Override
-    public void saveDTO(FormDefDTO dto) {
+    public void saveDTO(String procDefId, FormDefDTO dto) {
+        dto.getFormDef().setProcDefId(procDefId);
         save(dto.getFormDef());
-        dto.getFormItemDTOList().forEach(formItemService::saveDTO);
+        dto.getFormItemDTOList().forEach(e -> formItemService.saveDTO(dto.getFormDef().getId(), e));
     }
 }

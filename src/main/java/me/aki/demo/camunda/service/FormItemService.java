@@ -5,5 +5,5 @@ import me.aki.demo.camunda.entity.FormItem;
 import me.aki.demo.camunda.entity.dto.FormDefDTO;
 
 public interface FormItemService extends IService<FormItem> {
-    void saveDTO(FormDefDTO.FormItemDTO dto);
+    void saveDTO(String formDefId,FormDefDTO.FormItemDTO dto);
 }
