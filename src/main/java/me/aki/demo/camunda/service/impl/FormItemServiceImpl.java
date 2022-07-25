@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import me.aki.demo.camunda.entity.FormItem;
 import me.aki.demo.camunda.entity.FormItemProp;
 import me.aki.demo.camunda.entity.dto.FormDefDTO;
+import me.aki.demo.camunda.entity.vo.FormDefVO;
 import me.aki.demo.camunda.enums.FormItemType;
 import me.aki.demo.camunda.mapper.FormItemMapper;
 import me.aki.demo.camunda.service.FormItemPropService;
@@ -67,8 +68,38 @@ public class FormItemServiceImpl extends ServiceImpl<FormItemMapper, FormItem> i
         });
     }
 
+    @Override
+    public List<FormDefVO.FormItemVO> getVOListByFormDefId(String formDefId) {
+        List<FormItem> items = lambdaQuery().eq(FormItem::getFormDefId, formDefId).list();
+        return items.stream().map(this::toVO).collect(Collectors.toList());
+    }
+
     private FormItemProp toEntity(FormDefDTO.FormItemPropDTO dto) {
         // FIXME: 2022/7/19 literal constant
         return BeanUtil.copyProperties(dto, FormItemProp.class, "children");
+    }
+
+    private FormDefVO.FormItemVO toVO(FormItem entity) {
+        FormDefVO.FormItemVO vo = new FormDefVO.FormItemVO();
+        vo.setFormItem(entity);
+        var props = formItemPropService.lambdaQuery()
+                .eq(FormItemProp::getFormItemId, entity.getId())
+                .list().stream().map(this::toVO).collect(Collectors.groupingBy(FormDefVO.FormItemPropVO::getParentPropId));
+        var pList = props.getOrDefault("0", Collections.emptyList());
+        vo.setFormItemPropList(pList);
+        while (!pList.isEmpty()) {
+            ArrayList<FormDefVO.FormItemPropVO> vos = new ArrayList<>();
+            for (FormDefVO.FormItemPropVO p : pList) {
+                List<FormDefVO.FormItemPropVO> children = props.getOrDefault(p.getId(), Collections.emptyList());
+                p.setChildren(children);
+                vos.addAll(children);
+            }
+            pList = vos;
+        }
+        return vo;
+    }
+
+    private FormDefVO.FormItemPropVO toVO(FormItemProp entity) {
+        return BeanUtil.copyProperties(entity, FormDefVO.FormItemPropVO.class, "children");
     }
 }

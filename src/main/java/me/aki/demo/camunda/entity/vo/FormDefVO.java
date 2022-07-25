@@ -1,4 +1,4 @@
-package me.aki.demo.camunda.entity.dto;
+package me.aki.demo.camunda.entity.vo;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
@@ -6,36 +6,27 @@ import lombok.Data;
 import me.aki.demo.camunda.entity.FormDef;
 import me.aki.demo.camunda.entity.FormItem;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class FormDefDTO {
-    @Valid
-    @NotNull
+public class FormDefVO {
     private FormDef formDef;
-    @Valid
-    @NotNull
-    @NotEmpty
-    private List<FormItemDTO> formItemList;
+    private List<FormItemVO> formItemList;
 
     @Data
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class FormItemDTO {
-        @Valid
+    public static class FormItemVO {
         @NotNull
         private FormItem formItem;
-        @Valid
-        private List<FormItemPropDTO> formItemPropList;
+        private List<FormItemPropVO> formItemPropList;
     }
 
     @Data
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    public static class FormItemPropDTO {
+    public static class FormItemPropVO {
         @ApiModelProperty(name = "ID")
         private String id;
         /**
@@ -63,7 +54,6 @@ public class FormDefDTO {
          * 子属性
          */
         @ApiModelProperty(name = "子属性")
-        @Valid
-        List<FormItemPropDTO> children;
+        List<FormItemPropVO> children;
     }
 }

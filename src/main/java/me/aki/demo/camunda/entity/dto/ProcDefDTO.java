@@ -47,6 +47,6 @@ public class ProcDefDTO {
     @ApiModelProperty(name = "表单定义")
     @NotNull
     @Valid
-    private FormDefDTO formDefDTO;
+    private FormDefDTO formDef;
 
 }

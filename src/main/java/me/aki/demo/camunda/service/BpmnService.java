@@ -9,6 +9,7 @@ import me.aki.demo.camunda.entity.dto.node.NodeLink;
 import me.aki.demo.camunda.entity.dto.node.impl.EdgeNodeDTO;
 import me.aki.demo.camunda.entity.dto.node.impl.StartEventFlowNodeDTO;
 import me.aki.demo.camunda.entity.dto.node.impl.TaskFlowNodeDTO;
+import me.aki.demo.camunda.entity.vo.FormDefVO;
 import me.aki.demo.camunda.entity.vo.ProcDefVO;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.model.bpmn.Bpmn;
@@ -47,6 +48,8 @@ public class BpmnService {
         vo.setProcDef(procDef);
         var processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionKey(procDef.getCamundaProcDefKey()).singleResult();
         vo.setCamundaProcessDefinition(processDefinition);
+        FormDefVO formDef = formDefService.getVOByProcDefId(id);
+        vo.setFormDefVO(formDef);
         return vo;
     }
 
@@ -59,7 +62,7 @@ public class BpmnService {
         procDef.setCamundaProcDefId(pd.getId());
         procDef.setCamundaProcDefKey(pd.getKey());
         procDefService.save(procDef);
-        formDefService.saveDTO(procDef.getId(), dto.getFormDefDTO());
+        formDefService.saveDTO(procDef.getId(), dto.getFormDef());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

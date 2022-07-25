@@ -4,7 +4,7 @@
   "avatar": "",
   "version": "4.1.1",
   "createdTime": "2022-6-28 10:18:07",
-  "updatedTime": "2022-7-22 15:32:22",
+  "updatedTime": "2022-7-25 14:46:46",
   "dbConns": [],
   "profile": {
     "default": {
@@ -2196,8 +2196,8 @@
           "codeRoot": ""
         }
       },
-      "defKey": "WF_PROC_INST_FORM",
-      "defName": "实例表单",
+      "defKey": "WF_FORM_INST",
+      "defName": "表单实例",
       "comment": "",
       "properties": {},
       "nameTemplate": "{defKey}[{defName}]",
@@ -2318,6 +2318,23 @@
           "extProps": {},
           "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
           "id": "E9F5E6EC-745D-4B9C-80C4-CBD0F99C776C"
+        },
+        {
+          "defKey": "CAMUNDA_PROC_INST_ID",
+          "defName": "",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "5D0835B3-6AAC-413A-AAB1-C910DE4FAACA"
         },
         {
           "defKey": "CAMUNDA_PROC_INST_BUSINESS_KEY",
@@ -2467,7 +2484,7 @@
           "codeRoot": ""
         }
       },
-      "defKey": "WF_PROC_INST_FORM_ITEM",
+      "defKey": "WF_FORM_INST_ITEM",
       "defName": "实例表单数据",
       "comment": "",
       "properties": {},
@@ -2557,7 +2574,7 @@
           "uiHint": ""
         },
         {
-          "defKey": "PROC_INST_FORM_ID",
+          "defKey": "FORM_INST_ID",
           "defName": "",
           "comment": "",
           "type": "",
