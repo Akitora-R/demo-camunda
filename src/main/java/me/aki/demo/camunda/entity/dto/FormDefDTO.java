@@ -13,7 +13,6 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FormDefDTO {
     @Valid
     @NotNull
@@ -24,7 +23,6 @@ public class FormDefDTO {
     private List<FormItemDTO> formItemList;
 
     @Data
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class FormItemDTO {
         @Valid
         @NotNull
@@ -34,7 +32,6 @@ public class FormDefDTO {
     }
 
     @Data
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class FormItemPropDTO {
         @ApiModelProperty(name = "ID")
         private String id;

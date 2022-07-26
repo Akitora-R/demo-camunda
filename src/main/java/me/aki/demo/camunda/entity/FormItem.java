@@ -13,7 +13,6 @@ import javax.validation.constraints.NotNull;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("WF_FORM_ITEM")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FormItem extends BaseEntity {
     /**
      * ID

@@ -1,6 +1,5 @@
 package me.aki.demo.camunda.entity.vo;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import me.aki.demo.camunda.entity.FormDef;
@@ -11,13 +10,11 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FormDefVO {
     private FormDef formDef;
     private List<FormItemVO> formItemList;
 
     @Data
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class FormItemVO {
         @NotNull
         private FormItem formItem;
@@ -25,7 +22,6 @@ public class FormDefVO {
     }
 
     @Data
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class FormItemPropVO {
         @ApiModelProperty(name = "ID")
         private String id;

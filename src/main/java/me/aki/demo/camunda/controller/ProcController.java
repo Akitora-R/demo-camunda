@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.extern.slf4j.Slf4j;
 import me.aki.demo.camunda.entity.ProcDef;
 import me.aki.demo.camunda.entity.dto.ProcDefDTO;
+import me.aki.demo.camunda.entity.dto.ProcInstDTO;
 import me.aki.demo.camunda.entity.dto.R;
 import me.aki.demo.camunda.entity.vo.ProcDefVO;
 import me.aki.demo.camunda.service.BpmnService;
@@ -50,7 +51,8 @@ public class ProcController {
     }
 
     @PostMapping("/instance")
-    public R<Object> createProcessInstance() {
+    public R<Object> createProcessInstance(@RequestBody ProcInstDTO dto) {
+
         return R.ok();
     }
 

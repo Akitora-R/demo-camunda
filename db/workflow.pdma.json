@@ -4,7 +4,7 @@
   "avatar": "",
   "version": "4.1.1",
   "createdTime": "2022-6-28 10:18:07",
-  "updatedTime": "2022-7-25 14:46:46",
+  "updatedTime": "2022-7-26 19:09:22",
   "dbConns": [],
   "profile": {
     "default": {
@@ -1796,7 +1796,7 @@
         },
         {
           "defKey": "FORM_ITEM_ID",
-          "defName": "组件KEY",
+          "defName": "组件ID",
           "comment": "",
           "type": "",
           "len": "",
@@ -2755,7 +2755,7 @@
           "codeRoot": ""
         }
       },
-      "defKey": "WF_PROC_VAR",
+      "defKey": "WF_PROC_DEF_VARIABLE",
       "defName": "流程变量定义",
       "comment": "",
       "properties": {},
@@ -2862,7 +2862,7 @@
           "id": "4B4D43FE-2C02-4582-A49C-27C1A524E253"
         },
         {
-          "defKey": "VAR_CODE",
+          "defKey": "VARIABLE_KEY",
           "defName": "变量code",
           "comment": "",
           "type": "",
@@ -2879,7 +2879,7 @@
           "id": "6515560D-5260-4474-B13A-3ED751C0B4BF"
         },
         {
-          "defKey": "VAR_TYPE",
+          "defKey": "VARIABLE_TYPE",
           "defName": "变量类型",
           "comment": "",
           "type": "",
@@ -2896,26 +2896,9 @@
           "id": "72F4ECD9-32FD-422B-8439-B8D9492D7326"
         },
         {
-          "defKey": "ARRAY",
-          "defName": "是否为数组",
-          "comment": "",
-          "type": "",
-          "len": "",
-          "scale": "",
-          "primaryKey": false,
-          "notNull": false,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": false,
-          "refDict": "",
-          "extProps": {},
-          "domain": "6F7C1C5C-D159-41E6-BF9D-54DEEFA79AFF",
-          "id": "6B1DF56F-903D-4881-89ED-10E3E7DA38A7"
-        },
-        {
-          "defKey": "SOURCE",
-          "defName": "来源",
-          "comment": "枚举DEFAULT默认，EXP不填FORM表单，EXP填写FORM_ITEM_KEYBEAN通过继承X接口的Java Bean获取，EXP为Bean Name枚举",
+          "defKey": "SOURCE_TYPE",
+          "defName": "来源类型",
+          "comment": "BEAN\nFORM\nBASE(是否有必要？)",
           "type": "",
           "len": "",
           "scale": "",
@@ -2930,9 +2913,9 @@
           "id": "83EB5606-6F4B-4972-A8AF-4DDDF5023106"
         },
         {
-          "defKey": "SOURCE_EXP",
-          "defName": "来源表达式",
-          "comment": "",
+          "defKey": "SOURCE_IDENTIFIER",
+          "defName": "来源标识",
+          "comment": "可能的值：\nform item key\nbean enum",
           "type": "",
           "len": "",
           "scale": "",
@@ -3801,80 +3784,77 @@
               "port": "E9F5E6EC-745D-4B9C-80C4-CBD0F99C776C%in"
             },
             "relation": "1:n",
-            "fillColor": "#ACDAFC",
-            "router": {
-              "name": "manhattan"
-            }
+            "fillColor": "#ACDAFC"
           },
           {
-            "id": "cb9a3bf1-a9d0-4156-b27b-e0ba48ce54f7",
+            "id": "d62756a7-6e89-41f1-bb17-36867164678b",
             "shape": "table",
             "position": {
-              "x": -220,
+              "x": 315,
               "y": -30
             },
             "count": 0,
-            "originKey": "EBD1ADD5-C40D-4A73-AC13-1996015811B3"
-          },
-          {
-            "id": "dc5f9327-a9a5-4085-992f-d13c29d5b744",
-            "shape": "table",
-            "position": {
-              "x": 76,
-              "y": -410
-            },
-            "count": 0,
-            "originKey": "DE9B592D-3796-41BE-87D2-99BABD68E863"
-          },
-          {
-            "id": "a87042c2-7011-4d42-b115-d6e910124ba6",
-            "shape": "table",
-            "position": {
-              "x": 30,
-              "y": -200
-            },
-            "count": 0,
-            "originKey": "87095D42-5A09-41B5-8971-C34EA21AC8A7"
-          },
-          {
-            "id": "8eb82c98-63b8-4fee-a4b8-088faee75ac1",
-            "shape": "table",
-            "position": {
-              "x": -220,
-              "y": 348
-            },
-            "count": 0,
-            "originKey": "109ADE60-BF0B-4D09-B62E-C2C5CD317197"
-          },
-          {
-            "id": "1ca72159-1112-41a4-9443-00970d6c4838",
-            "shape": "table",
-            "position": {
-              "x": -220,
-              "y": 97
-            },
-            "count": 0,
-            "originKey": "01248EF4-AC90-4053-B948-F92BB101E755"
+            "originKey": "79EA3C91-E60B-4973-B5F6-2786BB82D8E5"
           },
           {
             "id": "b1fed587-6d3a-4e02-b5d0-803b6d2086f8",
             "shape": "table",
             "position": {
-              "x": 235,
+              "x": 315,
               "y": 154.5
             },
             "count": 0,
             "originKey": "BBE8D17A-7FA0-4EDB-95C1-CBA21209A5C2"
           },
           {
-            "id": "d62756a7-6e89-41f1-bb17-36867164678b",
+            "id": "a87042c2-7011-4d42-b115-d6e910124ba6",
             "shape": "table",
             "position": {
-              "x": 235,
+              "x": 110,
+              "y": -200
+            },
+            "count": 0,
+            "originKey": "87095D42-5A09-41B5-8971-C34EA21AC8A7"
+          },
+          {
+            "id": "dc5f9327-a9a5-4085-992f-d13c29d5b744",
+            "shape": "table",
+            "position": {
+              "x": 202.5,
+              "y": -380
+            },
+            "count": 0,
+            "originKey": "DE9B592D-3796-41BE-87D2-99BABD68E863"
+          },
+          {
+            "id": "cb9a3bf1-a9d0-4156-b27b-e0ba48ce54f7",
+            "shape": "table",
+            "position": {
+              "x": -140,
               "y": -30
             },
             "count": 0,
-            "originKey": "79EA3C91-E60B-4973-B5F6-2786BB82D8E5"
+            "originKey": "EBD1ADD5-C40D-4A73-AC13-1996015811B3"
+          },
+          {
+            "id": "1ca72159-1112-41a4-9443-00970d6c4838",
+            "shape": "table",
+            "position": {
+              "x": -140,
+              "y": 97
+            },
+            "count": 0,
+            "originKey": "01248EF4-AC90-4053-B948-F92BB101E755"
+          },
+          {
+            "id": "8eb82c98-63b8-4fee-a4b8-088faee75ac1",
+            "shape": "table",
+            "position": {
+              "x": -140,
+              "y": 348
+            },
+            "count": 0,
+            "originKey": "109ADE60-BF0B-4D09-B62E-C2C5CD317197"
           }
         ]
       },

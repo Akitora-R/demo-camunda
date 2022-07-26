@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("WF_FORM_DEF")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FormDef extends BaseEntity {
     /**
      * ID
