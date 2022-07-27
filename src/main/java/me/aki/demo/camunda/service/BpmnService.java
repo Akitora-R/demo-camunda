@@ -32,11 +32,13 @@ public class BpmnService {
     private final ProcDefService procDefService;
     private final FormDefService formDefService;
     private final RepositoryService repositoryService;
+    private final ProcDefVariableService procDefVariableService;
 
-    public BpmnService(ProcDefService procDefService, FormDefService formDefService, RepositoryService repositoryService) {
+    public BpmnService(ProcDefService procDefService, FormDefService formDefService, RepositoryService repositoryService, ProcDefVariableService procDefVariableService) {
         this.procDefService = procDefService;
         this.formDefService = formDefService;
         this.repositoryService = repositoryService;
+        this.procDefVariableService = procDefVariableService;
     }
 
     public ProcDefVO getProcDefVOById(String id) {

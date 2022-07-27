@@ -1,10 +1,12 @@
 package me.aki.demo.camunda.entity.dto.node;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import me.aki.demo.camunda.entity.dto.ProcDefVariableDTO;
 import me.aki.demo.camunda.entity.dto.node.impl.*;
 import me.aki.demo.camunda.enums.BpmnShape;
+
+import java.util.List;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -23,6 +25,8 @@ public interface NodeDTO {
     String getLabel();
 
     BpmnShape getShape();
+
+    List<ProcDefVariableDTO> getVariableList();
 
     void tidyUp();
 }

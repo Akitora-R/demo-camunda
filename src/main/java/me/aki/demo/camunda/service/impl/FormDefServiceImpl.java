@@ -30,7 +30,7 @@ public class FormDefServiceImpl extends ServiceImpl<FormDefMapper, FormDef> impl
 
     @Override
     public FormDefVO getVOByProcDefId(String procDefId) {
-        FormDef formDef = lambdaQuery().eq(FormDef::getProcDefId,procDefId).one();
+        FormDef formDef = lambdaQuery().eq(FormDef::getProcDefId, procDefId).one();
         FormDefVO vo = new FormDefVO();
         vo.setFormDef(formDef);
         List<FormDefVO.FormItemVO> items = formItemService.getVOListByFormDefId(formDef.getId());

@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import me.aki.demo.camunda.entity.dto.ProcDefVariableDTO;
 import me.aki.demo.camunda.entity.dto.node.NodeDTO;
 import me.aki.demo.camunda.enums.BpmnShape;
 
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -19,6 +21,7 @@ public class EdgeNodeDTO implements NodeDTO {
     private String condition;
     private String source;
     private String target;
+    private List<ProcDefVariableDTO> variableList;
 
     @Override
     public String toString() {

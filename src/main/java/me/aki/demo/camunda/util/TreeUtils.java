@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Pair;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -18,13 +19,15 @@ public class TreeUtils {
 
 	@Data
 	@AllArgsConstructor
-	public static class BaseNode {
-		String id;
-		String parentId;
+	@NoArgsConstructor
+	public static class TreeNode<T> {
+		private String id;
+		private String parentId;
+		private T data;
 	}
 
-	public static <T extends BaseNode> void validateTree(List<T> flatNodeList, String parentId, Consumer<T> onAddToTree) {
-		validateTree(flatNodeList, BaseNode::getId, BaseNode::getParentId, parentId, onAddToTree);
+	public static <T extends TreeNode<?>> void validateTree(List<T> flatNodeList, String parentId, Consumer<T> onAddToTree) {
+		validateTree(flatNodeList, TreeNode::getId, TreeNode::getParentId, parentId, onAddToTree);
 	}
 
 	/**

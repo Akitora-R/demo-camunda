@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import me.aki.demo.camunda.entity.dto.ProcDefVariableDTO;
 import me.aki.demo.camunda.entity.dto.node.FlowNodeDTO;
 import me.aki.demo.camunda.enums.BpmnShape;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.EndEventBuilder;
 
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -18,6 +20,7 @@ import java.util.UUID;
 public class EndEventFlowNodeDTO implements FlowNodeDTO {
     private String id;
     private String label;
+    private List<ProcDefVariableDTO> variableList;
 
     @Override
     public String toString() {
