@@ -30,7 +30,7 @@ public class ProcController {
             @RequestBody
             @Validated
             ProcDefDTO dto) {
-        bpmnService.createBpmnProcess(dto);
+        bpmnService.createProcessDefinition(dto);
         return R.ok(dto);
     }
 
@@ -47,27 +47,31 @@ public class ProcController {
 
     @DeleteMapping("/definition/{id}")
     public R<Object> delDefinition(@PathVariable String id) {
+        // TODO: 2022/7/28
         return R.ok();
     }
 
     @PostMapping("/instance")
     public R<Object> createProcessInstance(@RequestBody ProcInstDTO dto) {
-
+        bpmnService.createProcessInstance(dto);
         return R.ok();
     }
 
     @GetMapping("/instance")
     public R<Object> listProcessInstance() {
+        // TODO: 2022/7/28
         return R.ok();
     }
 
     @GetMapping("/instance/{businessKey}")
     public R<Object> getProcessInstanceDetail(@PathVariable String businessKey) {
+        // TODO: 2022/7/28
         return R.ok();
     }
 
     @DeleteMapping("/instance/{businessKey}")
     public R<Object> delProcessInstance(@PathVariable String businessKey) {
+        // TODO: 2022/7/28
         return R.ok();
     }
 }

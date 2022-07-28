@@ -16,105 +16,119 @@
 
 ```json
 {
-  "procDefName": "流程",
-  "procDefCode": "A",
-  "nodeList": [
-    {
-      "id": "task_0",
-      "code": "a_0a",
-      "label": "主管审核",
-      "assignee": "${chargerAssignee}",
-      "shape": "TASK"
-    },
-    {
-      "id": "task_1",
-      "code": "a_0a2",
-      "label": "经理审核",
-      "assignee": "${managerAssignee}",
-      "shape": "TASK"
-    },
-    {
-      "id": "endEvent_0",
-      "label": "结束",
-      "shape": "END_EVENT"
-    },
-    {
-      "id": "startEvent_0",
-      "label": "开始",
-      "shape": "START_EVENT"
-    },
-    {
-      "shape": "EDGE",
-      "source": "startEvent_0",
-      "target": "task_0"
-    },
-    {
-      "shape": "EDGE",
-      "source": "task_0",
-      "target": "task_1"
-    },
-    {
-      "shape": "EDGE",
-      "source": "task_1",
-      "target": "endEvent_0"
-    }
-  ],
-  "formDefDTO": {
+    "procDefName": "动态流程",
+    "procDefCode": "proc_code",
+    "nodeList": [
+        {
+            "id": "task_0",
+            "code": "a_0a",
+            "label": "主管审核",
+            "assignee": "${chargerAssignee}",
+            "shape": "TASK",
+            "variable": [
+                {
+                    "variableKey": "chargerAssignee",
+                    "sourceType": "BEAN",
+                    "sourceIdentifier": "CHARGER_USER"
+                }
+            ]
+        },
+        {
+            "id": "task_1",
+            "code": "a_0a2",
+            "label": "经理审核",
+            "assignee": "${managerAssignee}",
+            "shape": "TASK",
+            "variable": [
+                {
+                    "variableKey": "managerAssignee",
+                    "sourceType": "BEAN",
+                    "sourceIdentifier": "MANAGER_USER"
+                }
+            ]
+        },
+        {
+            "id": "endEvent_0",
+            "label": "结束",
+            "shape": "END_EVENT"
+        },
+        {
+            "id": "startEvent_0",
+            "label": "开始",
+            "shape": "START_EVENT"
+        },
+        {
+            "shape": "EDGE",
+            "source": "startEvent_0",
+            "target": "task_0"
+        },
+        {
+            "shape": "EDGE",
+            "source": "task_0",
+            "target": "task_1"
+        },
+        {
+            "shape": "EDGE",
+            "source": "task_1",
+            "target": "endEvent_0"
+        }
+    ],
     "formDef": {
-      "title": "表单标题"
-    },
-    "formItemDTOList": [
-      {
-        "formItem": {
-          "formItemLabel": "文字输入",
-          "formItemKey": "text_0",
-          "disabled": false,
-          "formItemType": "TEXT_INPUT"
+        "formDef": {
+            "title": "表单标题"
         },
-        "formItemPropList": [
-          {
-            "propKey": "max_len",
-            "propVal": "100"
-          }
+        "formItemList": [
+            {
+                "formItem": {
+                    "formItemLabel": "文字输入",
+                    "formItemKey": "text_0",
+                    "disabled": false,
+                    "formItemType": "TEXT_INPUT"
+                },
+                "formItemPropList": [
+                    {
+                        "propKey": "max_len",
+                        "propVal": "100"
+                    }
+                ]
+            },
+            {
+                "formItem": {
+                    "formItemLabel": "下拉选择",
+                    "formItemKey": "sel_0",
+                    "disabled": false,
+                    "formItemType": "SELECT"
+                },
+                "formItemPropList": [
+                    {
+                        "propKey": "item",
+                        "children": [
+                            {
+                                "propKey": "label",
+                                "propVal": "选项1"
+                            },
+                            {
+                                "propKey": "value",
+                                "propVal": "opt_1"
+                            }
+                        ]
+                    },
+                    {
+                        "propKey": "item",
+                        "children": [
+                            {
+                                "propKey": "label",
+                                "propVal": "选项2"
+                            },
+                            {
+                                "propKey": "value",
+                                "propVal": "opt_2"
+                            }
+                        ]
+                    }
+                ]
+            }
         ]
-      },
-      {
-        "formItem": {
-          "formItemLabel": "下拉选择",
-          "formItemKey": "sel_0",
-          "disabled": false,
-          "formItemType": "SELECT"
-        },
-        "formItemPropList": [
-          {
-            "propKey": "item",
-            "children": [
-              {
-                "propKey": "label",
-                "propVal": "选项1"
-              },
-              {
-                "propKey": "value",
-                "propVal": "opt_1"
-              }
-            ]
-          },
-          {
-            "propKey": "item",
-            "children": [
-              {
-                "propKey": "label",
-                "propVal": "选项2"
-              },
-              {
-                "propKey": "value",
-                "propVal": "opt_2"
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
+    }
 }
 ```

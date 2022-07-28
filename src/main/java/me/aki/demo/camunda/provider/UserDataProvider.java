@@ -2,6 +2,6 @@ package me.aki.demo.camunda.provider;
 
 import me.aki.demo.camunda.entity.SysUser;
 
-public interface SysUserProvider {
+public interface UserDataProvider {
     SysUser getUser(String userId);
 }

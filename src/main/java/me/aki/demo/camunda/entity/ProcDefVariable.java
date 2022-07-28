@@ -27,12 +27,21 @@ public class ProcDefVariable extends BaseEntity {
     @ApiModelProperty(name = "变量key")
     private String variableKey;
     /**
-     * 来源类型;BEAN、FORM、BASE
+     * 来源类型;
+     * <ul>
+     *     <li>BEAN</li>
+     *     <li>FORM</li>
+     *     <li>BASE</li>
+     * </ul>
      */
     @ApiModelProperty(name = "来源类型", notes = "BEAN、FORM、BASE")
     private VariableSourceType sourceType;
     /**
-     * 来源标识;可能的值：[form item key, bean enum]
+     * 来源标识;
+     * <ul>
+     *     <li>form item key</li>
+     *     <li>bean enum</li>
+     * </ul>
      */
     @ApiModelProperty(name = "来源标识", notes = "可能的值：[form item key, bean enum]")
     private String sourceIdentifier;

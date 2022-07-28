@@ -24,6 +24,11 @@ public class R<T> {
         return r;
     }
 
+    public static <T> R<T> fail() {
+        R<T> r = new R<>();
+        r.code = 1;
+        return r;
+    }
     public static <T> R<T> fail(String msg) {
         R<T> r = new R<>();
         r.code = 1;
