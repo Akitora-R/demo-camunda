@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import java.io.IOException;
 
 @Configuration
+@Slf4j
 public class JacksonConfig {
     @Value("${spring.jackson.default-property-inclusion}")
     private JsonInclude.Include include;
@@ -43,6 +45,7 @@ public class JacksonConfig {
         module.addSerializer(new CamundaProcessDefinitionSerializer());
         objectMapper.registerModule(module);
         objectMapper.setDefaultPropertyInclusion(include);
+        log.debug("object property inclusion: {}", include);
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return objectMapper;

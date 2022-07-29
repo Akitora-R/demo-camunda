@@ -13,3 +13,6 @@ spring:
 #    database:
 #      # 每次启动删除表再建表
 #      schema-update: drop-create
+logging:
+  level:
+    me.aki.demo.camunda: debug

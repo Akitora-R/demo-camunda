@@ -1,8 +1,10 @@
 package me.aki.demo.camunda.service;
 
 import cn.hutool.core.lang.Assert;
+import lombok.extern.slf4j.Slf4j;
 import me.aki.demo.camunda.entity.ProcDef;
 import me.aki.demo.camunda.entity.ProcDefVariable;
+import me.aki.demo.camunda.entity.SysUser;
 import me.aki.demo.camunda.entity.dto.ProcDefDTO;
 import me.aki.demo.camunda.entity.dto.ProcInstDTO;
 import me.aki.demo.camunda.entity.dto.node.FlowNodeDTO;
@@ -34,6 +36,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@Slf4j
 public class BpmnService {
 
     private final ProcDefService procDefService;
@@ -44,7 +47,13 @@ public class BpmnService {
     private final SysUserService sysUserService;
     private final RuntimeService runtimeService;
 
-    public BpmnService(ProcDefService procDefService, FormDefService formDefService, RepositoryService repositoryService, ProcDefVariableService procDefVariableService, ApplicationContext applicationContext, SysUserService sysUserService, RuntimeService runtimeService) {
+    public BpmnService(ProcDefService procDefService,
+                       FormDefService formDefService,
+                       RepositoryService repositoryService,
+                       ProcDefVariableService procDefVariableService,
+                       ApplicationContext applicationContext,
+                       SysUserService sysUserService,
+                       RuntimeService runtimeService) {
         this.procDefService = procDefService;
         this.formDefService = formDefService;
         this.repositoryService = repositoryService;
@@ -69,6 +78,7 @@ public class BpmnService {
     }
 
     public void createProcessDefinition(ProcDefDTO dto) {
+        log.debug("start create process definition：{}", dto.getProcDefName());
         BpmnModelInstance instance = parse(dto.getProcDefName(), dto.getNodeList());
         var deploy = repositoryService.createDeployment().name(dto.getProcDefName()).addModelInstance("generatedDef.bpmn", instance).deployWithResult();
         Assert.isTrue(deploy.getDeployedProcessDefinitions().size() == 1, "部署流程出错");
@@ -78,19 +88,22 @@ public class BpmnService {
         procDef.setCamundaProcDefKey(pd.getKey());
         procDefService.save(procDef);
         formDefService.saveDTO(procDef.getId(), dto.getFormDef());
-        List<ProcDefVariable> eL = dto.getNodeList().stream().filter(e -> e.getVariableList() == null).flatMap(e -> e.getVariableList().stream()).map(e -> {
+        List<ProcDefVariable> eL = dto.getNodeList().stream().filter(e -> e.getVariableList() != null).flatMap(e -> e.getVariableList().stream()).map(e -> {
             ProcDefVariable entity = procDefVariableService.toEntity(e);
             entity.setProcDefId(procDef.getId());
+            log.debug("create variable entity：{}", entity);
             return entity;
         }).collect(Collectors.toList());
         procDefVariableService.saveBatch(eL);
     }
 
     public void createProcessInstance(ProcInstDTO dto) {
+        ProcDef procDef = procDefService.getById(dto.getProcDefId());
+        Assert.notNull(procDef, "procDefId有误");
         HashMap<String, Object> procVar = new HashMap<>();
         // collect form related variables
         var providedFormVar = dto.getForm().getItemList().stream().collect(Collectors.toMap(ProcInstDTO.FormInstDTO.FormInstItemDTO::getFormItemId, e -> e));
-        var requiredVar = procDefVariableService.lambdaQuery().eq(ProcDefVariable::getProcDefId, dto.getProcDefId()).list();
+        var requiredVar = procDefVariableService.lambdaQuery().eq(ProcDefVariable::getProcDefId, procDef.getId()).list();
         var groupedRequiredVar = requiredVar.stream().collect(Collectors.groupingBy(ProcDefVariable::getSourceType));
         List<ProcDefVariable> requiredFormVar = groupedRequiredVar.getOrDefault(VariableSourceType.FORM, Collections.emptyList());
         requiredFormVar.forEach(e -> {
@@ -107,9 +120,10 @@ public class BpmnService {
             String varId = e.getSourceIdentifier();
             UserDataProvider userBean = userBeans.get(varId);
             Assert.notNull(userBean, "变量缺失: required id:{} type:{}", varId, e.getSourceType());
-            procVar.put(varId, userBean.getUser(sysUserService.getCurrentUser().getUserCode()));
+            SysUser varVal = userBean.getUser(sysUserService.getCurrentUser().getUserCode());
+            log.debug("set variable: {} - {}", varId, varVal);
+            procVar.put(varId, varVal);
         });
-        ProcDef procDef = procDefService.getById(dto.getProcDefId());
         runtimeService.startProcessInstanceByKey(procDef.getCamundaProcDefKey(), dto.getCamundaProcInstBusinessKey(), procVar);
     }
 
@@ -125,6 +139,7 @@ public class BpmnService {
                 .forEach(nList -> Assert.isTrue(nList.size() < 2, "所有Task节点中的code不可重复！存在重复节点:{}", nList));
         Map<Boolean, List<NodeDTO>> collect = nodeList.stream().collect(Collectors.groupingBy(e -> e instanceof EdgeNodeDTO));
         List<FlowNodeDTO> flowNodes = (List) collect.get(false);
+        log.debug("num of none-edge node：{}", flowNodes.size());
         List<EdgeNodeDTO> edges = (List) collect.get(true);
         Map<String, FlowNodeDTO> nodeMap = flowNodes.stream().collect(Collectors.toMap(FlowNodeDTO::getId, e -> e));
         List<FlowNodeDTO> startFlowNodeDTOS = flowNodes.stream().filter(e -> e instanceof StartEventFlowNodeDTO).toList();
@@ -136,6 +151,7 @@ public class BpmnService {
 //        HashSet<String> vertexLog = new HashSet<>();
         // FIXME: 2022/7/20 循环图尚未实现
         travelGraph(new NodeLink(null, null, start), edgeMap, nodeMap, nl -> {
+            log.debug("handle node link pair：{}", nl);
             var ss = s;
             ss = ss.moveToNode(nl.getPrevOutgoingNodeId());
             String condition = nl.getEdge().getCondition();
@@ -147,7 +163,7 @@ public class BpmnService {
         return s.done();
     }
 
-    void travelGraph(
+    private void travelGraph(
             NodeLink nl,
             Map<String, List<EdgeNodeDTO>> edgeMap,
             Map<String, FlowNodeDTO> nodeMap,

@@ -7,9 +7,9 @@ import java.util.List;
 
 @Data
 public class ProcInstDTO {
+    private String id;
     @NotBlank
     private String procDefId;
-    @NotBlank
     private String formDefId;
     private String camundaProcInstId;
     private String camundaProcInstBusinessKey;

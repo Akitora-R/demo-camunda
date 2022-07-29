@@ -52,7 +52,7 @@ public class ProcController {
     }
 
     @PostMapping("/instance")
-    public R<Object> createProcessInstance(@RequestBody ProcInstDTO dto) {
+    public R<Object> createProcessInstance(@RequestBody @Validated ProcInstDTO dto) {
         bpmnService.createProcessInstance(dto);
         return R.ok();
     }
