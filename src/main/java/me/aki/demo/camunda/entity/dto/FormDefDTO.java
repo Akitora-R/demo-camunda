@@ -1,6 +1,5 @@
 package me.aki.demo.camunda.entity.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import me.aki.demo.camunda.entity.FormDef;

@@ -17,26 +17,26 @@ spring event bridge 的全局事件监听方式
 public class SpringBridgeListener {
     @EventListener
     public void onTaskEvent(DelegateTask taskDelegate) {
-        log.info("onTaskEvent1 {}", taskDelegate);
+        log.debug("onTaskEvent1 {}", taskDelegate);
     }
 
     @EventListener
     public void onTaskEvent(TaskEvent taskEvent) {
-        log.info("onTaskEvent2 {}", taskEvent);
+        log.debug("onTaskEvent2 {}", taskEvent);
     }
 
     @EventListener
     public void onExecutionEvent(DelegateExecution executionDelegate) {
-        log.info("onExecutionEvent1 {}", executionDelegate);
+        log.debug("onExecutionEvent1 {}", executionDelegate);
     }
 
     @EventListener
     public void onExecutionEvent(ExecutionEvent executionEvent) {
-        log.info("onExecutionEvent2 {}", executionEvent);
+        log.debug("onExecutionEvent2 {}", executionEvent);
     }
 
     @EventListener
     public void onHistoryEvent(HistoryEvent historyEvent) {
-        log.info("onHistoryEvent {}", historyEvent);
+        log.debug("onHistoryEvent {}", historyEvent);
     }
 }

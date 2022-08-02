@@ -15,6 +15,10 @@ public class UserChargerDataProvider implements UserDataProvider {
 
     @Override
     public SysUser getUser(String userId) {
-        return null;
+        SysUser su = new SysUser();
+        su.setId("2");
+        su.setUserCode("charger_code");
+        su.setUsername("某主管");
+        return su;
     }
 }

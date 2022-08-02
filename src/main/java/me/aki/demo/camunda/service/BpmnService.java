@@ -2,9 +2,7 @@ package me.aki.demo.camunda.service;
 
 import cn.hutool.core.lang.Assert;
 import lombok.extern.slf4j.Slf4j;
-import me.aki.demo.camunda.entity.ProcDef;
-import me.aki.demo.camunda.entity.ProcDefVariable;
-import me.aki.demo.camunda.entity.SysUser;
+import me.aki.demo.camunda.entity.*;
 import me.aki.demo.camunda.entity.dto.ProcDefDTO;
 import me.aki.demo.camunda.entity.dto.ProcInstDTO;
 import me.aki.demo.camunda.entity.dto.node.FlowNodeDTO;
@@ -19,6 +17,8 @@ import me.aki.demo.camunda.enums.VariableSourceType;
 import me.aki.demo.camunda.provider.UserDataProvider;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
@@ -46,6 +46,9 @@ public class BpmnService {
     private final ApplicationContext applicationContext;
     private final SysUserService sysUserService;
     private final RuntimeService runtimeService;
+    private final FormInstService formInstService;
+    private final FormInstItemService formInstItemService;
+    private final TaskService taskService;
 
     public BpmnService(ProcDefService procDefService,
                        FormDefService formDefService,
@@ -53,7 +56,9 @@ public class BpmnService {
                        ProcDefVariableService procDefVariableService,
                        ApplicationContext applicationContext,
                        SysUserService sysUserService,
-                       RuntimeService runtimeService) {
+                       RuntimeService runtimeService,
+                       FormInstService formInstService,
+                       FormInstItemService formInstItemService, TaskService taskService) {
         this.procDefService = procDefService;
         this.formDefService = formDefService;
         this.repositoryService = repositoryService;
@@ -61,6 +66,9 @@ public class BpmnService {
         this.applicationContext = applicationContext;
         this.sysUserService = sysUserService;
         this.runtimeService = runtimeService;
+        this.formInstService = formInstService;
+        this.formInstItemService = formInstItemService;
+        this.taskService = taskService;
     }
 
     public ProcDefVO getProcDefVOById(String id) {
@@ -101,30 +109,43 @@ public class BpmnService {
         ProcDef procDef = procDefService.getById(dto.getProcDefId());
         Assert.notNull(procDef, "procDefId有误");
         HashMap<String, Object> procVar = new HashMap<>();
+        FormInst formInst = new FormInst();
+        FormDef formDef = formDefService.lambdaQuery().eq(FormDef::getProcDefId, procDef.getId()).one();
+        formInst.setProcDefId(procDef.getId());
+        formInst.setFormDefId(formDef.getId());
         // collect form related variables
         var providedFormVar = dto.getForm().getItemList().stream().collect(Collectors.toMap(ProcInstDTO.FormInstDTO.FormInstItemDTO::getFormItemId, e -> e));
         var requiredVar = procDefVariableService.lambdaQuery().eq(ProcDefVariable::getProcDefId, procDef.getId()).list();
         var groupedRequiredVar = requiredVar.stream().collect(Collectors.groupingBy(ProcDefVariable::getSourceType));
         List<ProcDefVariable> requiredFormVar = groupedRequiredVar.getOrDefault(VariableSourceType.FORM, Collections.emptyList());
-        requiredFormVar.forEach(e -> {
+        List<FormInstItem> items = requiredFormVar.stream().map(e -> {
             String varId = e.getSourceIdentifier();
             var item = providedFormVar.get(varId);
             Assert.notNull(item, "变量缺失: required id:{} type:{}", varId, e.getSourceType());
             procVar.put(varId, item.getFormItemVal());
-        });
+            return formInstItemService.toEntity(item);
+        }).toList();
         // collect the user related variables
         List<ProcDefVariable> requiredBeanVar = groupedRequiredVar.getOrDefault(VariableSourceType.BEAN, Collections.emptyList());
         // FIXME: 2022/7/28 unify it into one single service
         Map<String, UserDataProvider> userBeans = applicationContext.getBeansOfType(UserDataProvider.class);
         requiredBeanVar.forEach(e -> {
             String varId = e.getSourceIdentifier();
+            String varKey = e.getVariableKey();
             UserDataProvider userBean = userBeans.get(varId);
-            Assert.notNull(userBean, "变量缺失: required id:{} type:{}", varId, e.getSourceType());
-            SysUser varVal = userBean.getUser(sysUserService.getCurrentUser().getUserCode());
-            log.debug("set variable: {} - {}", varId, varVal);
-            procVar.put(varId, varVal);
+            Assert.notNull(userBean, "变量缺失: required key:{} type:{}", varKey, e.getSourceType());
+            var varVal = userBean.getUser(sysUserService.getCurrentUser().getUserCode()).getId();
+            log.debug("set variable: {} - {}", varKey, varVal);
+            procVar.put(varKey, varVal);
         });
-        runtimeService.startProcessInstanceByKey(procDef.getCamundaProcDefKey(), dto.getCamundaProcInstBusinessKey(), procVar);
+        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(procDef.getCamundaProcDefKey(), dto.getCamundaProcInstBusinessKey(), procVar);
+        formInst.setCamundaProcInstId(processInstance.getId());
+        formInst.setCamundaProcInstBusinessKey(dto.getCamundaProcInstBusinessKey());
+        formInstService.save(formInst);
+        items.forEach(e -> {
+            e.setFormInstId(formInst.getId());
+            formInstItemService.save(e);
+        });
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 public class MockSysUserService implements SysUserService {
     @Override
     public SysUser getCurrentUser() {
-        return new SysUser("mock_user", "Mock User");
+        SysUser su = new SysUser();
+        su.setId("0");
+        su.setUsername("mock user");
+        return su;
     }
 }

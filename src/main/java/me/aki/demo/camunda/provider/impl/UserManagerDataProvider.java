@@ -15,6 +15,10 @@ public class UserManagerDataProvider implements UserDataProvider {
 
     @Override
     public SysUser getUser(String userId) {
-        return null;
+        SysUser su = new SysUser();
+        su.setId("1");
+        su.setUserCode("manager_code");
+        su.setUsername("某经理");
+        return su;
     }
 }
