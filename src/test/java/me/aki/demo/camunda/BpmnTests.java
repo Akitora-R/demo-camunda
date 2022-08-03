@@ -17,6 +17,14 @@ import org.camunda.bpm.model.bpmn.GatewayDirection;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.EndEventBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
+import org.camunda.bpm.model.bpmn.instance.SequenceFlow;
+import org.camunda.bpm.model.bpmn.instance.UserTask;
+import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnDiagram;
+import org.camunda.bpm.model.xml.impl.ModelImpl;
+import org.camunda.bpm.model.xml.impl.type.ModelElementTypeImpl;
+import org.camunda.bpm.model.xml.instance.DomDocument;
+import org.camunda.bpm.model.xml.instance.DomElement;
+import org.camunda.bpm.model.xml.type.ModelElementType;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -129,13 +137,13 @@ public class BpmnTests {
 
     List<NodeDTO> genTestData() {
         ArrayList<NodeDTO> l = new ArrayList<>();
-        l.add(new StartEventFlowNodeDTO("startEvent_1", "开始"));
-        l.add(new EdgeNodeDTO(null, null, null, "startEvent_1", "userTask_1"));
+//        l.add(new StartEventFlowNodeDTO("startEvent_1", "开始"));
+//        l.add(new EdgeNodeDTO(null, null, null, "startEvent_1", "userTask_1"));
 //        l.add(new TaskFlowNodeDTO("userTask_1", "userTask_1", null, "审核1", null));
-        l.add(new EdgeNodeDTO(null, null, null, "userTask_1", "userTask_2"));
+//        l.add(new EdgeNodeDTO(null, null, null, "userTask_1", "userTask_2"));
 //        l.add(new TaskFlowNodeDTO("userTask_2", "userTask_2", null, "审核2", null));
-        l.add(new EdgeNodeDTO(null, null, null, "userTask_2", "endEvent_1"));
-        l.add(new EndEventFlowNodeDTO("endEvent_1", "结束"));
+//        l.add(new EdgeNodeDTO(null, null, null, "userTask_2", "endEvent_1"));
+//        l.add(new EndEventFlowNodeDTO("endEvent_1", "结束"));
         return l;
     }
 
@@ -220,7 +228,7 @@ public class BpmnTests {
 
     @Test
     void testGetNodes() {
-        EndEventBuilder builder = Bpmn.createExecutableProcess().name("GENERATED_PROC1")
+        var builder = Bpmn.createExecutableProcess().name("GENERATED_PROC1")
                 .startEvent()
                 .userTask().name("主管审核").camundaAssignee("${chargerAssignee}").camundaCandidateUsers("${chargerCandidate}")
                 .camundaOutputParameter("approval_1", "${approval}")
@@ -232,5 +240,17 @@ public class BpmnTests {
                 .moveToLastGateway()
                 .condition("no", "${!approval_2}")
                 .endEvent().name("rejected");
+        var done = builder.done();
+        var ns = done.getDefinitions().getTargetNamespace();
+        var document = done.getDocument();
+        for (var e : document.getElementsByNameNs(ns, "sequenceFlow")) {
+            var id = e.getAttribute("id");
+            var sourceRef = e.getAttribute("sourceRef");
+            var targetRef = e.getAttribute("targetRef");
+            System.out.printf("%s - %s -> %s\n", id, sourceRef, targetRef);
+        }
+        for (var e : document.getElementsByNameNs(ns, "userTask")) {
+            System.out.println(e.getAttribute("id"));
+        }
     }
 }

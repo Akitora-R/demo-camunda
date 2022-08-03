@@ -1,6 +1,7 @@
 package me.aki.demo.camunda.service;
 
 import cn.hutool.core.lang.Assert;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.extern.slf4j.Slf4j;
 import me.aki.demo.camunda.entity.*;
 import me.aki.demo.camunda.entity.dto.ProcDefDTO;
@@ -13,6 +14,7 @@ import me.aki.demo.camunda.entity.dto.node.impl.StartEventFlowNodeDTO;
 import me.aki.demo.camunda.entity.dto.node.impl.TaskFlowNodeDTO;
 import me.aki.demo.camunda.entity.vo.FormDefVO;
 import me.aki.demo.camunda.entity.vo.ProcDefVO;
+import me.aki.demo.camunda.entity.vo.ProcInstVO;
 import me.aki.demo.camunda.enums.VariableSourceType;
 import me.aki.demo.camunda.provider.UserDataProvider;
 import org.camunda.bpm.engine.RepositoryService;
@@ -146,6 +148,17 @@ public class BpmnService {
             e.setFormInstId(formInst.getId());
             formInstItemService.save(e);
         });
+    }
+
+    public IPage<ProcInstVO> procInstPagedQuery() {
+        // TODO: 2022/8/3
+        return null;
+    }
+
+    public ProcInstVO procInstDetail() {
+        // TODO: 2022/8/3
+        taskService.createTaskQuery().taskDefinitionKey("").singleResult().getTaskDefinitionKey();
+        return null;
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

@@ -22,6 +22,11 @@ public class ProcDefVariable extends BaseEntity {
     @ApiModelProperty(name = "流程定义ID")
     private String procDefId;
     /**
+     * 流程节点定义ID
+     */
+    @ApiModelProperty(name = "流程节点定义ID")
+    private String procDefNodeId;
+    /**
      * 变量key
      */
     @ApiModelProperty(name = "变量key")
