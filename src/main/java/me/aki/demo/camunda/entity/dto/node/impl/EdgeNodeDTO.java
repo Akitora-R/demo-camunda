@@ -6,10 +6,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import me.aki.demo.camunda.entity.dto.ProcDefVariableDTO;
 import me.aki.demo.camunda.entity.dto.node.NodeDTO;
-import me.aki.demo.camunda.enums.BpmnShape;
+import me.aki.demo.camunda.enums.JsonNodeShape;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 
 @Getter
 @Setter
@@ -29,12 +30,12 @@ public class EdgeNodeDTO implements NodeDTO {
     }
 
     @Override
-    public BpmnShape getShape() {
-        return BpmnShape.EDGE;
+    public JsonNodeShape getShape() {
+        return JsonNodeShape.EDGE;
     }
 
     @Override
-    public void tidyUp() {
+    public void tidyUp(BiConsumer<String,String> onIdChange) {
 
     }
 

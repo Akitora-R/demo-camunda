@@ -8,23 +8,12 @@ import me.aki.demo.camunda.entity.dto.node.FlowNodeDTO;
 import me.aki.demo.camunda.entity.dto.node.NodeDTO;
 import me.aki.demo.camunda.entity.dto.node.NodeLink;
 import me.aki.demo.camunda.entity.dto.node.impl.EdgeNodeDTO;
-import me.aki.demo.camunda.entity.dto.node.impl.EndEventFlowNodeDTO;
 import me.aki.demo.camunda.entity.dto.node.impl.StartEventFlowNodeDTO;
-import me.aki.demo.camunda.entity.dto.node.impl.TaskFlowNodeDTO;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.GatewayDirection;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
-import org.camunda.bpm.model.bpmn.builder.EndEventBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
-import org.camunda.bpm.model.bpmn.instance.SequenceFlow;
-import org.camunda.bpm.model.bpmn.instance.UserTask;
-import org.camunda.bpm.model.bpmn.instance.bpmndi.BpmnDiagram;
-import org.camunda.bpm.model.xml.impl.ModelImpl;
-import org.camunda.bpm.model.xml.impl.type.ModelElementTypeImpl;
-import org.camunda.bpm.model.xml.instance.DomDocument;
-import org.camunda.bpm.model.xml.instance.DomElement;
-import org.camunda.bpm.model.xml.type.ModelElementType;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -88,7 +77,7 @@ public class BpmnTests {
     @Test
     void parseFlow() {
         List<NodeDTO> nodeList = genTestData();
-        nodeList.forEach(NodeDTO::tidyUp);
+
         Map<Boolean, List<NodeDTO>> collect = nodeList.stream().collect(Collectors.groupingBy(e -> e instanceof EdgeNodeDTO));
         List<FlowNodeDTO> flowNodes = (List) collect.get(false);
         List<EdgeNodeDTO> edges = (List) collect.get(true);
@@ -227,7 +216,7 @@ public class BpmnTests {
     }
 
     @Test
-    void testGetNodes() {
+    void testReadModelInst() {
         var builder = Bpmn.createExecutableProcess().name("GENERATED_PROC1")
                 .startEvent()
                 .userTask().name("主管审核").camundaAssignee("${chargerAssignee}").camundaCandidateUsers("${chargerCandidate}")

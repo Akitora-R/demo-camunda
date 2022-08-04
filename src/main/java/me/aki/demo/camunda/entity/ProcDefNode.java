@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import me.aki.demo.camunda.enums.BpmnShape;
+import me.aki.demo.camunda.enums.JsonNodeShape;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -33,13 +33,8 @@ public class ProcDefNode extends BaseEntity {
     @ApiModelProperty(name = "节点标签")
     private String nodeLabel;
     /**
-     * 节点代码
-     */
-    @ApiModelProperty(name = "节点代码")
-    private String nodeCode;
-    /**
      * 节点类型
      */
     @ApiModelProperty(name = "节点类型")
-    private BpmnShape nodeShape;
+    private JsonNodeShape nodeShape;
 }

@@ -8,11 +8,11 @@ spring:
       matching-strategy: ant_path_matcher
   jackson:
     default-property-inclusion: non_null
-#camunda:
-#  bpm:
-#    database:
-#      # 每次启动删除表再建表
-#      schema-update: drop-create
+camunda:
+  bpm:
+    database:
+      # 每次启动删除表再建表
+      schema-update: drop-create
 logging:
   level:
     me.aki.demo.camunda: debug

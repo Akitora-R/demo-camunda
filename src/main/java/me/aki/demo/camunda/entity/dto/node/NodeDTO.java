@@ -4,14 +4,12 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import me.aki.demo.camunda.entity.dto.ProcDefVariableDTO;
 import me.aki.demo.camunda.entity.dto.node.impl.*;
-import me.aki.demo.camunda.enums.BpmnShape;
+import me.aki.demo.camunda.enums.JsonNodeShape;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        property = "shape"
-)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "shape")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = EdgeNodeDTO.class, name = "EDGE"),
         @JsonSubTypes.Type(value = EndEventFlowNodeDTO.class, name = "END_EVENT"),
@@ -24,9 +22,9 @@ public interface NodeDTO {
 
     String getLabel();
 
-    BpmnShape getShape();
+    JsonNodeShape getShape();
 
     List<ProcDefVariableDTO> getVariableList();
 
-    void tidyUp();
+    void tidyUp(BiConsumer<String, String> onIdChange);
 }

@@ -42,6 +42,8 @@ import java.util.stream.Collectors;
 public class BpmnService {
 
     private final ProcDefService procDefService;
+    private final ProcDefNodeService procDefNodeService;
+    private final ProcDefNodePropService procDefNodePropService;
     private final FormDefService formDefService;
     private final RepositoryService repositoryService;
     private final ProcDefVariableService procDefVariableService;
@@ -53,6 +55,8 @@ public class BpmnService {
     private final TaskService taskService;
 
     public BpmnService(ProcDefService procDefService,
+                       ProcDefNodeService procDefNodeService,
+                       ProcDefNodePropService procDefNodePropService,
                        FormDefService formDefService,
                        RepositoryService repositoryService,
                        ProcDefVariableService procDefVariableService,
@@ -62,6 +66,8 @@ public class BpmnService {
                        FormInstService formInstService,
                        FormInstItemService formInstItemService, TaskService taskService) {
         this.procDefService = procDefService;
+        this.procDefNodeService = procDefNodeService;
+        this.procDefNodePropService = procDefNodePropService;
         this.formDefService = formDefService;
         this.repositoryService = repositoryService;
         this.procDefVariableService = procDefVariableService;
@@ -89,22 +95,35 @@ public class BpmnService {
 
     public void createProcessDefinition(ProcDefDTO dto) {
         log.debug("start create process definition：{}", dto.getProcDefName());
-        BpmnModelInstance instance = parse(dto.getProcDefName(), dto.getNodeList());
+        // parse方法可能会修改dto的内容
+        var nodeList = dto.getNodeList();
+        var instance = parse(dto.getProcDefName(), nodeList);
         var deploy = repositoryService.createDeployment().name(dto.getProcDefName()).addModelInstance("generatedDef.bpmn", instance).deployWithResult();
         Assert.isTrue(deploy.getDeployedProcessDefinitions().size() == 1, "部署流程出错");
         var pd = deploy.getDeployedProcessDefinitions().get(0);
-        ProcDef procDef = procDefService.toEntity(dto);
+        var procDef = procDefService.toEntity(dto);
         procDef.setCamundaProcDefId(pd.getId());
         procDef.setCamundaProcDefKey(pd.getKey());
         procDefService.save(procDef);
-        formDefService.saveDTO(procDef.getId(), dto.getFormDef());
-        List<ProcDefVariable> eL = dto.getNodeList().stream().filter(e -> e.getVariableList() != null).flatMap(e -> e.getVariableList().stream()).map(e -> {
-            ProcDefVariable entity = procDefVariableService.toEntity(e);
-            entity.setProcDefId(procDef.getId());
-            log.debug("create variable entity：{}", entity);
-            return entity;
-        }).collect(Collectors.toList());
-        procDefVariableService.saveBatch(eL);
+        final var procDefId = procDef.getId();
+        formDefService.saveDTO(procDefId, dto.getFormDef());
+        nodeList.forEach(nodeDTO -> {
+            var pair = procDefNodeService.toEntity(nodeDTO);
+            ProcDefNode procDefNode = pair.getKey();
+            List<ProcDefNodeProp> props = pair.getValue();
+            procDefNode.setProcDefId(procDefId);
+            procDefNodeService.save(procDefNode);
+            props.forEach(e -> e.setProcDefNodeId(procDefNode.getId()));
+            procDefNodePropService.saveBatch(props);
+            if (nodeDTO.getVariableList() != null) {
+                nodeDTO.getVariableList().forEach(v -> {
+                    var procDefVariable = procDefVariableService.toEntity(v);
+                    procDefVariable.setProcDefId(procDefId);
+                    procDefVariable.setProcDefNodeId(procDefNode.getId());
+                    procDefVariableService.save(procDefVariable);
+                });
+            }
+        });
     }
 
     public void createProcessInstance(ProcInstDTO dto) {
@@ -163,7 +182,6 @@ public class BpmnService {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private BpmnModelInstance parse(String procName, List<NodeDTO> nodeList) {
-        nodeList.forEach(NodeDTO::tidyUp);
         // 为保证根据每个task code生成的变量不重复，必须校验所有task节点中的code不重复。
         nodeList.stream()
                 .filter(n -> n instanceof TaskFlowNodeDTO)
@@ -175,6 +193,10 @@ public class BpmnService {
         List<FlowNodeDTO> flowNodes = (List) collect.get(false);
         log.debug("num of none-edge node：{}", flowNodes.size());
         List<EdgeNodeDTO> edges = (List) collect.get(true);
+        nodeList.forEach(e -> e.tidyUp((oldId, newId) -> {
+            edges.stream().filter(edge -> edge.getSource().equals(oldId)).forEach(edge -> edge.setSource(newId));
+            edges.stream().filter(edge -> edge.getTarget().equals(oldId)).forEach(edge -> edge.setTarget(newId));
+        }));
         Map<String, FlowNodeDTO> nodeMap = flowNodes.stream().collect(Collectors.toMap(FlowNodeDTO::getId, e -> e));
         List<FlowNodeDTO> startFlowNodeDTOS = flowNodes.stream().filter(e -> e instanceof StartEventFlowNodeDTO).toList();
         Map<String, List<EdgeNodeDTO>> edgeMap = edges.stream().collect(Collectors.groupingBy(EdgeNodeDTO::getSource));
@@ -212,10 +234,7 @@ public class BpmnService {
     }
 
     List<NodeLink> getNext(FlowNodeDTO prev, Map<String, List<EdgeNodeDTO>> edgeMap, Map<String, FlowNodeDTO> nodeMap) {
-        List<EdgeNodeDTO> edgeNodes = edgeMap.get(prev.getId());
-        if (edgeNodes == null) {
-            return Collections.emptyList();
-        }
+        List<EdgeNodeDTO> edgeNodes = edgeMap.getOrDefault(prev.getId(),Collections.emptyList());
         return edgeNodes.stream().map(e -> new NodeLink(prev, e, nodeMap.get(e.getTarget()))).collect(Collectors.toList());
     }
 }

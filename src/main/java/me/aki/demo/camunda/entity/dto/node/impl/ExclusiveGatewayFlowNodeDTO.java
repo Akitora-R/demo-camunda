@@ -4,14 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import me.aki.demo.camunda.constant.IdPattern;
 import me.aki.demo.camunda.entity.dto.ProcDefVariableDTO;
 import me.aki.demo.camunda.entity.dto.node.FlowNodeDTO;
-import me.aki.demo.camunda.enums.BpmnShape;
+import me.aki.demo.camunda.enums.JsonNodeShape;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.ExclusiveGatewayBuilder;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 @Getter
 @Setter
@@ -28,14 +30,16 @@ public class ExclusiveGatewayFlowNodeDTO implements FlowNodeDTO {
     }
 
     @Override
-    public BpmnShape getShape() {
-        return BpmnShape.EXCLUSIVE_GATEWAY;
+    public JsonNodeShape getShape() {
+        return JsonNodeShape.EXCLUSIVE_GATEWAY;
     }
 
     @Override
-    public void tidyUp() {
-        if (id == null || !id.startsWith("exclusiveGateway_")) {
-            id = "exclusiveGateway_" + UUID.randomUUID();
+    public void tidyUp(BiConsumer<String, String> onIdChange) {
+        if (id == null || !IdPattern.EXCLUSIVE_GATEWAY_PATTERN.matcher(id).matches()) {
+            String newId = IdPattern.EXCLUSIVE_GATEWAY_PREFIX + UUID.randomUUID();
+            onIdChange.accept(id, newId);
+            id = newId;
         }
     }
 
