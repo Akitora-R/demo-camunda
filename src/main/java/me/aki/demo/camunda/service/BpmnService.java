@@ -1,8 +1,10 @@
 package me.aki.demo.camunda.service;
 
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.lang.Pair;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.extern.slf4j.Slf4j;
+import me.aki.demo.camunda.constant.BpmnConstant;
 import me.aki.demo.camunda.entity.*;
 import me.aki.demo.camunda.entity.dto.ProcDefDTO;
 import me.aki.demo.camunda.entity.dto.ProcInstDTO;
@@ -17,6 +19,7 @@ import me.aki.demo.camunda.entity.vo.ProcDefVO;
 import me.aki.demo.camunda.entity.vo.ProcInstVO;
 import me.aki.demo.camunda.enums.VariableSourceType;
 import me.aki.demo.camunda.provider.UserDataProvider;
+import me.aki.demo.camunda.util.BpmnUtil;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
@@ -44,6 +47,7 @@ public class BpmnService {
     private final ProcDefService procDefService;
     private final ProcDefNodeService procDefNodeService;
     private final ProcDefNodePropService procDefNodePropService;
+    private final ProcDefNodeElementRelInfoService procDefNodeElementRelInfoService;
     private final FormDefService formDefService;
     private final RepositoryService repositoryService;
     private final ProcDefVariableService procDefVariableService;
@@ -57,6 +61,7 @@ public class BpmnService {
     public BpmnService(ProcDefService procDefService,
                        ProcDefNodeService procDefNodeService,
                        ProcDefNodePropService procDefNodePropService,
+                       ProcDefNodeElementRelInfoService procDefNodeElementRelInfoService,
                        FormDefService formDefService,
                        RepositoryService repositoryService,
                        ProcDefVariableService procDefVariableService,
@@ -68,6 +73,7 @@ public class BpmnService {
         this.procDefService = procDefService;
         this.procDefNodeService = procDefNodeService;
         this.procDefNodePropService = procDefNodePropService;
+        this.procDefNodeElementRelInfoService = procDefNodeElementRelInfoService;
         this.formDefService = formDefService;
         this.repositoryService = repositoryService;
         this.procDefVariableService = procDefVariableService;
@@ -97,7 +103,11 @@ public class BpmnService {
         log.debug("start create process definition：{}", dto.getProcDefName());
         // parse方法可能会修改dto的内容
         var nodeList = dto.getNodeList();
-        var instance = parse(dto.getProcDefName(), nodeList);
+        var p = parse(dto.getProcDefName(), nodeList);
+        // 保存元素关联信息
+        var idPair = p.getValue();
+        idPair.forEach((nodeId, bpmnIdList) -> bpmnIdList.forEach(bpmnId -> procDefNodeElementRelInfoService.saveRel(nodeId, bpmnId)));
+        var instance = p.getKey();
         var deploy = repositoryService.createDeployment().name(dto.getProcDefName()).addModelInstance("generatedDef.bpmn", instance).deployWithResult();
         Assert.isTrue(deploy.getDeployedProcessDefinitions().size() == 1, "部署流程出错");
         var pd = deploy.getDeployedProcessDefinitions().get(0);
@@ -181,7 +191,7 @@ public class BpmnService {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private BpmnModelInstance parse(String procName, List<NodeDTO> nodeList) {
+    private Pair<BpmnModelInstance, Map<String, List<String>>> parse(String procName, List<NodeDTO> nodeList) {
         // 为保证根据每个task code生成的变量不重复，必须校验所有task节点中的code不重复。
         nodeList.stream()
                 .filter(n -> n instanceof TaskFlowNodeDTO)
@@ -189,14 +199,17 @@ public class BpmnService {
                 .collect(Collectors.groupingBy(TaskFlowNodeDTO::getCode))
                 .values()
                 .forEach(nList -> Assert.isTrue(nList.size() < 2, "所有Task节点中的code不可重复！存在重复节点:{}", nList));
+        // 分离出edge和各种node
         Map<Boolean, List<NodeDTO>> collect = nodeList.stream().collect(Collectors.groupingBy(e -> e instanceof EdgeNodeDTO));
         List<FlowNodeDTO> flowNodes = (List) collect.get(false);
         log.debug("num of none-edge node：{}", flowNodes.size());
         List<EdgeNodeDTO> edges = (List) collect.get(true);
+        // 整理id的同时保持图连接的正确性
         nodeList.forEach(e -> e.tidyUp((oldId, newId) -> {
             edges.stream().filter(edge -> edge.getSource().equals(oldId)).forEach(edge -> edge.setSource(newId));
             edges.stream().filter(edge -> edge.getTarget().equals(oldId)).forEach(edge -> edge.setTarget(newId));
         }));
+        // 获得开始节点
         Map<String, FlowNodeDTO> nodeMap = flowNodes.stream().collect(Collectors.toMap(FlowNodeDTO::getId, e -> e));
         List<FlowNodeDTO> startFlowNodeDTOS = flowNodes.stream().filter(e -> e instanceof StartEventFlowNodeDTO).toList();
         Map<String, List<EdgeNodeDTO>> edgeMap = edges.stream().collect(Collectors.groupingBy(EdgeNodeDTO::getSource));
@@ -204,7 +217,7 @@ public class BpmnService {
         FlowNodeDTO start = startFlowNodeDTOS.get(0);
         ProcessBuilder builder = Bpmn.createExecutableProcess().name(procName);
         AbstractFlowNodeBuilder<?, ?> s = builder.startEvent(start.getId()).name(start.getLabel());
-//        HashSet<String> vertexLog = new HashSet<>();
+        HashMap<String, List<String>> idPair = new HashMap<>();
         // FIXME: 2022/7/20 循环图尚未实现
         travelGraph(new NodeLink(null, null, start), edgeMap, nodeMap, nl -> {
             log.debug("handle node link pair：{}", nl);
@@ -214,9 +227,26 @@ public class BpmnService {
             if (condition != null && !condition.isEmpty()) {
                 ss.condition(null, condition);
             }
-            nl.getCurr().build(ss);
+            FlowNodeDTO curr = nl.getCurr();
+            List<String> bpmnId = curr.build(ss);
+            idPair.put(curr.getId(), bpmnId);
         });
-        return s.done();
+        BpmnModelInstance instance = s.done();
+        var bpmnEdges = BpmnUtil.getElementByName(instance, BpmnConstant.SEQUENCE_FLOW_NAME);
+        log.debug("开始处理bpmn sequenceFlow，数量: {}", bpmnEdges.size());
+        edges.forEach(edge -> {
+            String source = edge.getSource();
+            String target = edge.getTarget();
+            log.debug("处理edge: {} -> {}", source, target);
+            List<String> ids = bpmnEdges.stream().filter(e -> e.getAttribute(BpmnConstant.SEQUENCE_FLOW_ATTR_SOURCE).equals(source) &&
+                    e.getAttribute(BpmnConstant.SEQUENCE_FLOW_ATTR_TARGET).equals(target)).map(e -> e.getAttribute(BpmnConstant.ID_ATTR)).toList();
+            Assert.isTrue(ids.size() == 1, () -> ids.isEmpty() ?
+                    new IllegalArgumentException(String.format("edge匹配元素失败: %s -> %s", source, target)) :
+                    new IllegalArgumentException(String.format("路径相同的edge存在多条: %s -> %s", source, target)));
+            String bpmnId = ids.get(0);
+            idPair.put(edge.getId(), Collections.singletonList(bpmnId));
+        });
+        return new Pair<>(instance, idPair);
     }
 
     private void travelGraph(
@@ -234,7 +264,7 @@ public class BpmnService {
     }
 
     List<NodeLink> getNext(FlowNodeDTO prev, Map<String, List<EdgeNodeDTO>> edgeMap, Map<String, FlowNodeDTO> nodeMap) {
-        List<EdgeNodeDTO> edgeNodes = edgeMap.getOrDefault(prev.getId(),Collections.emptyList());
+        List<EdgeNodeDTO> edgeNodes = edgeMap.getOrDefault(prev.getId(), Collections.emptyList());
         return edgeNodes.stream().map(e -> new NodeLink(prev, e, nodeMap.get(e.getTarget()))).collect(Collectors.toList());
     }
 }

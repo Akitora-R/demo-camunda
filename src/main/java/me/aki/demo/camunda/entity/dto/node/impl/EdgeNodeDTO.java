@@ -1,15 +1,18 @@
 package me.aki.demo.camunda.entity.dto.node.impl;
 
+import cn.hutool.core.util.StrUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import me.aki.demo.camunda.constant.IdPattern;
 import me.aki.demo.camunda.entity.dto.ProcDefVariableDTO;
 import me.aki.demo.camunda.entity.dto.node.NodeDTO;
 import me.aki.demo.camunda.enums.JsonNodeShape;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 
 @Getter
@@ -35,8 +38,10 @@ public class EdgeNodeDTO implements NodeDTO {
     }
 
     @Override
-    public void tidyUp(BiConsumer<String,String> onIdChange) {
-
+    public void tidyUp(BiConsumer<String, String> onIdChange) {
+        if (StrUtil.isBlank(id)) {
+            id = IdPattern.EDGE_PREFIX + UUID.randomUUID();
+        }
     }
 
     @Override

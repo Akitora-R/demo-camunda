@@ -14,6 +14,8 @@ import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -67,14 +69,15 @@ public class TaskFlowNodeDTO implements CombinationNodeDTO {
     }
 
     @Override
-    public AbstractFlowNodeBuilder<?, ?> build(AbstractFlowNodeBuilder<?, ?> builder) {
-        String middleGatewayId = "exclusiveGateway_" + UUID.randomUUID();
+    public List<String> build(AbstractFlowNodeBuilder<?, ?> builder) {
+        String middleGatewayId = IdPattern.EXCLUSIVE_GATEWAY_PREFIX + UUID.randomUUID();
         String varName = String.format("%s_approval", code);
-        return builder
+        builder
                 .userTask().id(incomingNodeId).name(label).camundaAssignee(assignee).camundaOutputParameter(varName, "${approval}")
                 .exclusiveGateway().id(middleGatewayId).condition("reject", String.format("${!%s}", varName))
                 .endEvent()
                 .moveToNode(middleGatewayId).condition("approve", String.format("${%s}", varName))
                 .exclusiveGateway().id(outgoingNodeId);
+        return Arrays.asList(incomingNodeId, outgoingNodeId, middleGatewayId);
     }
 }

@@ -11,6 +11,7 @@ public interface IdPattern {
     String END_EVENT_PREFIX = "endEvent_";
     String TASK_PREFIX = "userTask_";
     String EXCLUSIVE_GATEWAY_PREFIX = "exclusiveGateway_";
+    String EDGE_PREFIX = "edge_";
 
     Pattern START_EVENT_PATTERN = Pattern.compile(START_EVENT_PREFIX + UUID_PATTERN);
     Pattern END_EVENT_PATTERN = Pattern.compile(END_EVENT_PREFIX + UUID_PATTERN);

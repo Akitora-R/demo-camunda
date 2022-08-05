@@ -9,8 +9,8 @@ import me.aki.demo.camunda.entity.dto.ProcDefVariableDTO;
 import me.aki.demo.camunda.entity.dto.node.FlowNodeDTO;
 import me.aki.demo.camunda.enums.JsonNodeShape;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
-import org.camunda.bpm.model.bpmn.builder.ExclusiveGatewayBuilder;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -44,7 +44,8 @@ public class ExclusiveGatewayFlowNodeDTO implements FlowNodeDTO {
     }
 
     @Override
-    public ExclusiveGatewayBuilder build(AbstractFlowNodeBuilder<?, ?> builder) {
-        return builder.exclusiveGateway().id(id).name(label);
+    public List<String> build(AbstractFlowNodeBuilder<?, ?> builder) {
+        builder.exclusiveGateway().id(id).name(label);
+        return Collections.singletonList(id);
     }
 }

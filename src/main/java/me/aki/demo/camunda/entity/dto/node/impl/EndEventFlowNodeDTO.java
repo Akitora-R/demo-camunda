@@ -12,6 +12,7 @@ import me.aki.demo.camunda.enums.JsonNodeShape;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.EndEventBuilder;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -47,7 +48,8 @@ public class EndEventFlowNodeDTO implements FlowNodeDTO {
     }
 
     @Override
-    public EndEventBuilder build(AbstractFlowNodeBuilder<?, ?> builder) {
-        return builder.endEvent().id(id).name(label);
+    public List<String> build(AbstractFlowNodeBuilder<?, ?> builder) {
+        builder.endEvent().id(id).name(label);
+        return Collections.singletonList(id);
     }
 }

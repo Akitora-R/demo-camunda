@@ -12,6 +12,7 @@ import me.aki.demo.camunda.enums.JsonNodeShape;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.StartEventBuilder;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -47,8 +48,9 @@ public class StartEventFlowNodeDTO implements FlowNodeDTO {
     }
 
     @Override
-    public StartEventBuilder build(AbstractFlowNodeBuilder<?, ?> builder) {
+    public List<String> build(AbstractFlowNodeBuilder<?, ?> builder) {
         assert builder instanceof StartEventBuilder;
-        return ((StartEventBuilder) builder).id(id).name(label);
+        ((StartEventBuilder) builder).id(id).name(label);
+        return Collections.singletonList(id);
     }
 }
