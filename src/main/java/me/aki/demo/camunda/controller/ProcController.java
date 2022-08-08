@@ -6,6 +6,7 @@ import me.aki.demo.camunda.entity.ProcDef;
 import me.aki.demo.camunda.entity.dto.ProcDefDTO;
 import me.aki.demo.camunda.entity.dto.ProcInstDTO;
 import me.aki.demo.camunda.entity.dto.R;
+import me.aki.demo.camunda.entity.dto.query.ProcInstPagedQueryParam;
 import me.aki.demo.camunda.entity.vo.ProcDefVO;
 import me.aki.demo.camunda.service.BpmnService;
 import me.aki.demo.camunda.service.ProcDefService;
@@ -26,17 +27,13 @@ public class ProcController {
     }
 
     @PostMapping("/definition")
-    public R<ProcDefDTO> createDefinition(
-            @RequestBody
-            @Validated
-            ProcDefDTO dto) {
+    public R<ProcDefDTO> createDefinition(@RequestBody @Validated ProcDefDTO dto) {
         bpmnService.createProcessDefinition(dto);
         return R.ok(dto);
     }
 
     @GetMapping("/definition")
-    public R<IPage<ProcDef>> listDefinition(@RequestParam(defaultValue = "1") Integer page,
-                                            @RequestParam(defaultValue = "10") Integer size) {
+    public R<IPage<ProcDef>> listDefinition(@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size) {
         return R.ok(procDefService.page(page, size));
     }
 
@@ -58,15 +55,13 @@ public class ProcController {
     }
 
     @GetMapping("/instance")
-    public R<Object> listProcessInstance() {
-        // TODO: 2022/7/28
-        return R.ok();
+    public R<Object> listProcessInstance(@RequestParam ProcInstPagedQueryParam query) {
+        return R.ok(bpmnService.procInstPagedQuery(query));
     }
 
     @GetMapping("/instance/{businessKey}")
     public R<Object> getProcessInstanceDetail(@PathVariable String businessKey) {
-        // TODO: 2022/7/28
-        return R.ok();
+        return R.ok(bpmnService.procInstDetailByBk(businessKey));
     }
 
     @DeleteMapping("/instance/{businessKey}")

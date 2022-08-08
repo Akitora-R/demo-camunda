@@ -3,39 +3,41 @@ package me.aki.demo.camunda.service;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.Pair;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import me.aki.demo.camunda.constant.BpmnConstant;
 import me.aki.demo.camunda.entity.*;
 import me.aki.demo.camunda.entity.dto.ProcDefDTO;
 import me.aki.demo.camunda.entity.dto.ProcInstDTO;
+import me.aki.demo.camunda.entity.dto.node.CombinationNodeDTO;
 import me.aki.demo.camunda.entity.dto.node.FlowNodeDTO;
 import me.aki.demo.camunda.entity.dto.node.NodeDTO;
 import me.aki.demo.camunda.entity.dto.node.NodeLink;
 import me.aki.demo.camunda.entity.dto.node.impl.EdgeNodeDTO;
 import me.aki.demo.camunda.entity.dto.node.impl.StartEventFlowNodeDTO;
 import me.aki.demo.camunda.entity.dto.node.impl.TaskFlowNodeDTO;
+import me.aki.demo.camunda.entity.dto.query.ProcInstPagedQueryParam;
 import me.aki.demo.camunda.entity.vo.FormDefVO;
 import me.aki.demo.camunda.entity.vo.ProcDefVO;
 import me.aki.demo.camunda.entity.vo.ProcInstVO;
 import me.aki.demo.camunda.enums.VariableSourceType;
 import me.aki.demo.camunda.provider.UserDataProvider;
 import me.aki.demo.camunda.util.BpmnUtil;
+import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.history.HistoricProcessInstance;
+import org.camunda.bpm.engine.history.HistoricProcessInstanceQuery;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
-import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -57,6 +59,7 @@ public class BpmnService {
     private final FormInstService formInstService;
     private final FormInstItemService formInstItemService;
     private final TaskService taskService;
+    private final HistoryService historyService;
 
     public BpmnService(ProcDefService procDefService,
                        ProcDefNodeService procDefNodeService,
@@ -69,7 +72,9 @@ public class BpmnService {
                        SysUserService sysUserService,
                        RuntimeService runtimeService,
                        FormInstService formInstService,
-                       FormInstItemService formInstItemService, TaskService taskService) {
+                       FormInstItemService formInstItemService,
+                       TaskService taskService,
+                       HistoryService historyService) {
         this.procDefService = procDefService;
         this.procDefNodeService = procDefNodeService;
         this.procDefNodePropService = procDefNodePropService;
@@ -83,6 +88,7 @@ public class BpmnService {
         this.formInstService = formInstService;
         this.formInstItemService = formInstItemService;
         this.taskService = taskService;
+        this.historyService = historyService;
     }
 
     public ProcDefVO getProcDefVOById(String id) {
@@ -119,20 +125,18 @@ public class BpmnService {
         formDefService.saveDTO(procDefId, dto.getFormDef());
         nodeList.forEach(nodeDTO -> {
             var pair = procDefNodeService.toEntity(nodeDTO);
-            ProcDefNode procDefNode = pair.getKey();
-            List<ProcDefNodeProp> props = pair.getValue();
+            var procDefNode = pair.getKey();
+            var props = pair.getValue();
             procDefNode.setProcDefId(procDefId);
             procDefNodeService.save(procDefNode);
             props.forEach(e -> e.setProcDefNodeId(procDefNode.getId()));
             procDefNodePropService.saveBatch(props);
-            if (nodeDTO.getVariableList() != null) {
-                nodeDTO.getVariableList().forEach(v -> {
-                    var procDefVariable = procDefVariableService.toEntity(v);
-                    procDefVariable.setProcDefId(procDefId);
-                    procDefVariable.setProcDefNodeId(procDefNode.getId());
-                    procDefVariableService.save(procDefVariable);
-                });
-            }
+            Optional.ofNullable(nodeDTO.getVariableList()).ifPresent(e -> e.forEach(v -> {
+                var procDefVariable = procDefVariableService.toEntity(v);
+                procDefVariable.setProcDefId(procDefId);
+                procDefVariable.setProcDefNodeId(procDefNode.getId());
+                procDefVariableService.save(procDefVariable);
+            }));
         });
     }
 
@@ -179,12 +183,26 @@ public class BpmnService {
         });
     }
 
-    public IPage<ProcInstVO> procInstPagedQuery() {
-        // TODO: 2022/8/3
-        return null;
+    public IPage<ProcInstVO> procInstPagedQuery(ProcInstPagedQueryParam queryParam) {
+        Page<ProcInstVO> p = new Page<>();
+        Integer size = queryParam.getSize();
+        Integer page = queryParam.getPage();
+        HistoricProcessInstanceQuery q = historyService.createHistoricProcessInstanceQuery();
+        List<HistoricProcessInstance> rec = q.orderByProcessInstanceStartTime()
+                .listPage((page - 1) * size, size);
+        long total = q.count();
+        p.setPages(page);
+        p.setTotal(total);
+        p.setSize(size);
+        p.setRecords(rec.stream().map(e -> {
+            ProcInstVO vo = new ProcInstVO();
+            vo.setCamundaProcessInstance(e);
+            return vo;
+        }).toList());
+        return p;
     }
 
-    public ProcInstVO procInstDetail() {
+    public ProcInstVO procInstDetailByBk(String businessKey) {
         // TODO: 2022/8/3
         taskService.createTaskQuery().taskDefinitionKey("").singleResult().getTaskDefinitionKey();
         return null;
@@ -200,52 +218,67 @@ public class BpmnService {
                 .values()
                 .forEach(nList -> Assert.isTrue(nList.size() < 2, "所有Task节点中的code不可重复！存在重复节点:{}", nList));
         // 分离出edge和各种node
-        Map<Boolean, List<NodeDTO>> collect = nodeList.stream().collect(Collectors.groupingBy(e -> e instanceof EdgeNodeDTO));
+        var collect = nodeList.stream().collect(Collectors.groupingBy(e -> e instanceof EdgeNodeDTO));
         List<FlowNodeDTO> flowNodes = (List) collect.get(false);
-        log.debug("num of none-edge node：{}", flowNodes.size());
+        log.debug("非边节点数量 ：{}", flowNodes.size());
         List<EdgeNodeDTO> edges = (List) collect.get(true);
+        // FIXME: 2022/8/8 既然已经持久化了映射关系，tidyUp过程中是否真的有必要再进行id的修改？
         // 整理id的同时保持图连接的正确性
         nodeList.forEach(e -> e.tidyUp((oldId, newId) -> {
             edges.stream().filter(edge -> edge.getSource().equals(oldId)).forEach(edge -> edge.setSource(newId));
             edges.stream().filter(edge -> edge.getTarget().equals(oldId)).forEach(edge -> edge.setTarget(newId));
         }));
         // 获得开始节点
-        Map<String, FlowNodeDTO> nodeMap = flowNodes.stream().collect(Collectors.toMap(FlowNodeDTO::getId, e -> e));
-        List<FlowNodeDTO> startFlowNodeDTOS = flowNodes.stream().filter(e -> e instanceof StartEventFlowNodeDTO).toList();
-        Map<String, List<EdgeNodeDTO>> edgeMap = edges.stream().collect(Collectors.groupingBy(EdgeNodeDTO::getSource));
+        var nodeMap = flowNodes.stream().collect(Collectors.toMap(FlowNodeDTO::getId, e -> e));
+        var startFlowNodeDTOS = flowNodes.stream().filter(e -> e instanceof StartEventFlowNodeDTO).toList();
+        var edgeMap = edges.stream().collect(Collectors.groupingBy(EdgeNodeDTO::getSource));
         Assert.isTrue(startFlowNodeDTOS.size() == 1, "开始节点数量有误");
-        FlowNodeDTO start = startFlowNodeDTOS.get(0);
-        ProcessBuilder builder = Bpmn.createExecutableProcess().name(procName);
+        var start = startFlowNodeDTOS.get(0);
+        var builder = Bpmn.createExecutableProcess().name(procName);
         AbstractFlowNodeBuilder<?, ?> s = builder.startEvent(start.getId()).name(start.getLabel());
-        HashMap<String, List<String>> idPair = new HashMap<>();
+        var idPair = new HashMap<String, List<String>>();
+        // 遍历json图并构建BpmnModelInstance
         // FIXME: 2022/7/20 循环图尚未实现
         travelGraph(new NodeLink(null, null, start), edgeMap, nodeMap, nl -> {
-            log.debug("handle node link pair：{}", nl);
+            log.debug("处理 node link pair：{}", nl);
             var ss = s;
             ss = ss.moveToNode(nl.getPrevOutgoingNodeId());
-            String condition = nl.getEdge().getCondition();
+            var condition = nl.getEdge().getCondition();
             if (condition != null && !condition.isEmpty()) {
                 ss.condition(null, condition);
             }
-            FlowNodeDTO curr = nl.getCurr();
-            List<String> bpmnId = curr.build(ss);
+            var curr = nl.getCurr();
+            var bpmnId = curr.build(ss);
             idPair.put(curr.getId(), bpmnId);
         });
         BpmnModelInstance instance = s.done();
         var bpmnEdges = BpmnUtil.getElementByName(instance, BpmnConstant.SEQUENCE_FLOW_NAME);
         log.debug("开始处理bpmn sequenceFlow，数量: {}", bpmnEdges.size());
+        // 关联json edge 与bpmn sequenceFlow
         edges.forEach(edge -> {
-            String source = edge.getSource();
-            String target = edge.getTarget();
+            var source = nodeMap.get(edge.getSource()) instanceof CombinationNodeDTO c ? c.getOutgoingNodeId() : edge.getSource();
+            var target = nodeMap.get(edge.getTarget()) instanceof CombinationNodeDTO c ? c.getIncomingNodeId() : edge.getTarget();
             log.debug("处理edge: {} -> {}", source, target);
-            List<String> ids = bpmnEdges.stream().filter(e -> e.getAttribute(BpmnConstant.SEQUENCE_FLOW_ATTR_SOURCE).equals(source) &&
+            var ids = bpmnEdges.stream().filter(e -> e.getAttribute(BpmnConstant.SEQUENCE_FLOW_ATTR_SOURCE).equals(source) &&
                     e.getAttribute(BpmnConstant.SEQUENCE_FLOW_ATTR_TARGET).equals(target)).map(e -> e.getAttribute(BpmnConstant.ID_ATTR)).toList();
             Assert.isTrue(ids.size() == 1, () -> ids.isEmpty() ?
                     new IllegalArgumentException(String.format("edge匹配元素失败: %s -> %s", source, target)) :
                     new IllegalArgumentException(String.format("路径相同的edge存在多条: %s -> %s", source, target)));
-            String bpmnId = ids.get(0);
+            var bpmnId = ids.get(0);
             idPair.put(edge.getId(), Collections.singletonList(bpmnId));
         });
+        // 将CombinationNodeDTO内部的edge也加入集合
+        flowNodes.stream()
+                .map(e -> e instanceof CombinationNodeDTO c ? c : null)
+                .filter(Objects::nonNull)
+                .forEach(comb -> idPair.computeIfPresent(comb.getId(), (jsonNodeId, internalElemId) -> {
+                    var internalEdgeIds = bpmnEdges.stream().filter(e -> internalElemId.contains(e.getAttribute(BpmnConstant.SEQUENCE_FLOW_ATTR_SOURCE)) &&
+                            internalElemId.contains(e.getAttribute(BpmnConstant.SEQUENCE_FLOW_ATTR_TARGET))).map(e -> e.getAttribute(BpmnConstant.ID_ATTR)).toList();
+                    // 以防list为immutable类型
+                    var i = new ArrayList<>(internalElemId);
+                    i.addAll(internalEdgeIds);
+                    return i;
+                }));
         return new Pair<>(instance, idPair);
     }
 
