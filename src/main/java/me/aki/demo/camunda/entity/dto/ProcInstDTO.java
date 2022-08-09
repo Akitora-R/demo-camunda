@@ -14,6 +14,7 @@ public class ProcInstDTO {
     private String procDefId;
     private String formDefId;
     private String camundaProcInstId;
+    @NotBlank
     private String camundaProcInstBusinessKey;
     @NotNull
     @Valid

@@ -20,13 +20,13 @@ import me.aki.demo.camunda.entity.dto.query.ProcInstPagedQueryParam;
 import me.aki.demo.camunda.entity.vo.FormDefVO;
 import me.aki.demo.camunda.entity.vo.ProcDefVO;
 import me.aki.demo.camunda.entity.vo.ProcInstVO;
+import me.aki.demo.camunda.entity.vo.TaskVO;
 import me.aki.demo.camunda.enums.VariableSourceType;
 import me.aki.demo.camunda.provider.UserDataProvider;
 import me.aki.demo.camunda.util.BpmnUtil;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.history.HistoricProcessInstanceQuery;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @Slf4j
-public class BpmnService {
+public class WorkflowProcService {
 
     private final ProcDefService procDefService;
     private final ProcDefNodeService procDefNodeService;
@@ -58,23 +58,21 @@ public class BpmnService {
     private final RuntimeService runtimeService;
     private final FormInstService formInstService;
     private final FormInstItemService formInstItemService;
-    private final TaskService taskService;
     private final HistoryService historyService;
 
-    public BpmnService(ProcDefService procDefService,
-                       ProcDefNodeService procDefNodeService,
-                       ProcDefNodePropService procDefNodePropService,
-                       ProcDefNodeElementRelInfoService procDefNodeElementRelInfoService,
-                       FormDefService formDefService,
-                       RepositoryService repositoryService,
-                       ProcDefVariableService procDefVariableService,
-                       ApplicationContext applicationContext,
-                       SysUserService sysUserService,
-                       RuntimeService runtimeService,
-                       FormInstService formInstService,
-                       FormInstItemService formInstItemService,
-                       TaskService taskService,
-                       HistoryService historyService) {
+    public WorkflowProcService(ProcDefService procDefService,
+                               ProcDefNodeService procDefNodeService,
+                               ProcDefNodePropService procDefNodePropService,
+                               ProcDefNodeElementRelInfoService procDefNodeElementRelInfoService,
+                               FormDefService formDefService,
+                               RepositoryService repositoryService,
+                               ProcDefVariableService procDefVariableService,
+                               ApplicationContext applicationContext,
+                               SysUserService sysUserService,
+                               RuntimeService runtimeService,
+                               FormInstService formInstService,
+                               FormInstItemService formInstItemService,
+                               HistoryService historyService) {
         this.procDefService = procDefService;
         this.procDefNodeService = procDefNodeService;
         this.procDefNodePropService = procDefNodePropService;
@@ -87,7 +85,6 @@ public class BpmnService {
         this.runtimeService = runtimeService;
         this.formInstService = formInstService;
         this.formInstItemService = formInstItemService;
-        this.taskService = taskService;
         this.historyService = historyService;
     }
 
@@ -188,7 +185,7 @@ public class BpmnService {
         Integer size = queryParam.getSize();
         Integer page = queryParam.getPage();
         HistoricProcessInstanceQuery q = historyService.createHistoricProcessInstanceQuery();
-        List<HistoricProcessInstance> rec = q.orderByProcessInstanceStartTime()
+        List<HistoricProcessInstance> rec = q.orderByProcessInstanceStartTime().desc()
                 .listPage((page - 1) * size, size);
         long total = q.count();
         p.setPages(page);
@@ -202,10 +199,17 @@ public class BpmnService {
         return p;
     }
 
-    public ProcInstVO procInstDetailByBk(String businessKey) {
-        // TODO: 2022/8/3
-        taskService.createTaskQuery().taskDefinitionKey("").singleResult().getTaskDefinitionKey();
-        return null;
+    public ProcInstVO procInstDetailById(String id) {
+        HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(id).singleResult();
+        if (historicProcessInstance == null) {
+            return null;
+        }
+        ProcInstVO vo = new ProcInstVO();
+        vo.setCamundaProcessInstance(historicProcessInstance);
+        var taskInstanceList = historyService.createHistoricTaskInstanceQuery().processInstanceId(id).orderByHistoricActivityInstanceStartTime().desc().list()
+                .stream().map(e -> new TaskVO(e, null, null)).toList();
+        vo.setTaskList(taskInstanceList);
+        return vo;
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

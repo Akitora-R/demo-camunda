@@ -8,8 +8,11 @@ import me.aki.demo.camunda.entity.dto.ProcInstDTO;
 import me.aki.demo.camunda.entity.dto.R;
 import me.aki.demo.camunda.entity.dto.query.ProcInstPagedQueryParam;
 import me.aki.demo.camunda.entity.vo.ProcDefVO;
-import me.aki.demo.camunda.service.BpmnService;
+import me.aki.demo.camunda.entity.vo.ProcInstVO;
+import me.aki.demo.camunda.service.WorkflowProcService;
 import me.aki.demo.camunda.service.ProcDefService;
+import me.aki.demo.camunda.util.ReqUtil;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,17 +21,17 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class ProcController {
 
-    private final BpmnService bpmnService;
+    private final WorkflowProcService workflowProcService;
     private final ProcDefService procDefService;
 
-    public ProcController(BpmnService bpmnService, ProcDefService procDefService) {
-        this.bpmnService = bpmnService;
+    public ProcController(WorkflowProcService workflowProcService, ProcDefService procDefService) {
+        this.workflowProcService = workflowProcService;
         this.procDefService = procDefService;
     }
 
     @PostMapping("/definition")
     public R<ProcDefDTO> createDefinition(@RequestBody @Validated ProcDefDTO dto) {
-        bpmnService.createProcessDefinition(dto);
+        workflowProcService.createProcessDefinition(dto);
         return R.ok(dto);
     }
 
@@ -38,8 +41,9 @@ public class ProcController {
     }
 
     @GetMapping("/definition/{id}")
-    public R<ProcDefVO> getDefinitionDetail(@PathVariable String id) {
-        return R.ok(bpmnService.getProcDefVOById(id));
+    public ResponseEntity<R<ProcDefVO>> getDefinitionDetail(@PathVariable String id) {
+        ProcDefVO vo = workflowProcService.getProcDefVOById(id);
+        return ReqUtil.nullTo404(vo);
     }
 
     @DeleteMapping("/definition/{id}")
@@ -50,23 +54,29 @@ public class ProcController {
 
     @PostMapping("/instance")
     public R<Object> createProcessInstance(@RequestBody @Validated ProcInstDTO dto) {
-        bpmnService.createProcessInstance(dto);
+        workflowProcService.createProcessInstance(dto);
         return R.ok();
     }
 
     @GetMapping("/instance")
-    public R<Object> listProcessInstance(@RequestParam ProcInstPagedQueryParam query) {
-        return R.ok(bpmnService.procInstPagedQuery(query));
+    public R<Object> listProcessInstance(ProcInstPagedQueryParam query) {
+        return R.ok(workflowProcService.procInstPagedQuery(query));
     }
 
-    @GetMapping("/instance/{businessKey}")
-    public R<Object> getProcessInstanceDetail(@PathVariable String businessKey) {
-        return R.ok(bpmnService.procInstDetailByBk(businessKey));
+    @GetMapping("/instance/{id}")
+    public ResponseEntity<R<ProcInstVO>> getProcessInstanceDetail(@PathVariable String id) {
+        ProcInstVO vo = workflowProcService.procInstDetailById(id);
+        return ReqUtil.nullTo404(vo);
     }
 
-    @DeleteMapping("/instance/{businessKey}")
-    public R<Object> delProcessInstance(@PathVariable String businessKey) {
+    @DeleteMapping("/instance/{id}")
+    public R<Object> delProcessInstance(@PathVariable String id) {
         // TODO: 2022/7/28
+        return R.ok();
+    }
+
+    @PutMapping("/task/{id}")
+    public R<Object> completeTask(@PathVariable String id) {
         return R.ok();
     }
 }

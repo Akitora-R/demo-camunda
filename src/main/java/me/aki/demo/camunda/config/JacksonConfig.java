@@ -1,6 +1,5 @@
 package me.aki.demo.camunda.config;
 
-import cn.hutool.core.date.DateUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,6 +9,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.history.HistoricProcessInstance;
+import org.camunda.bpm.engine.history.HistoricTaskInstance;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
@@ -18,6 +19,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.Optional;
 
 @Configuration
 @Slf4j
@@ -25,7 +29,18 @@ public class JacksonConfig {
     @Value("${spring.jackson.default-property-inclusion}")
     private JsonInclude.Include include;
 
-    private static class CamundaProcessDefinitionSerializer extends StdSerializer<ProcessDefinition> {
+    private abstract static class BpmnSerializer<T> extends StdSerializer<T> {
+
+        protected BpmnSerializer(Class<T> t) {
+            super(t);
+        }
+
+        protected String formatISO8601(Date date) {
+            return Optional.ofNullable(date).map(t -> t.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().toString()).orElse(null);
+        }
+    }
+
+    private static class CamundaProcessDefinitionSerializer extends BpmnSerializer<ProcessDefinition> {
         protected CamundaProcessDefinitionSerializer() {
             super(ProcessDefinition.class);
         }
@@ -41,32 +56,67 @@ public class JacksonConfig {
         }
     }
 
-    private static class CamundaProcessInstanceSerializer extends StdSerializer<ProcessInstance> {
+    private static class CamundaProcessInstanceSerializer extends BpmnSerializer<ProcessInstance> {
         protected CamundaProcessInstanceSerializer() {
             super(ProcessInstance.class);
         }
 
         @Override
-        public void serialize(ProcessInstance processInstance, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        public void serialize(ProcessInstance value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("id", processInstance.getId());
-            jsonGenerator.writeStringField("businessKey", processInstance.getBusinessKey());
+            jsonGenerator.writeStringField("id", value.getId());
+            jsonGenerator.writeStringField("businessKey", value.getBusinessKey());
             jsonGenerator.writeEndObject();
         }
     }
 
-    private static class CamundaTaskSerializer extends StdSerializer<Task> {
+    private static class CamundaTaskSerializer extends BpmnSerializer<Task> {
         protected CamundaTaskSerializer() {
             super(Task.class);
         }
 
         @Override
-        public void serialize(Task task, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        public void serialize(Task value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("id", task.getId());
-            jsonGenerator.writeStringField("name", task.getName());
-            jsonGenerator.writeStringField("assignee", task.getAssignee());
-            jsonGenerator.writeStringField("createTime", DateUtil.format(task.getCreateTime(), "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
+            jsonGenerator.writeStringField("id", value.getId());
+            jsonGenerator.writeStringField("name", value.getName());
+            jsonGenerator.writeStringField("assignee", value.getAssignee());
+            jsonGenerator.writeStringField("createTime", formatISO8601(value.getCreateTime()));
+            jsonGenerator.writeEndObject();
+        }
+    }
+    private static class CamundaHistoricTaskSerializer extends BpmnSerializer<HistoricTaskInstance> {
+        protected CamundaHistoricTaskSerializer() {
+            super(HistoricTaskInstance.class);
+        }
+
+        @Override
+        public void serialize(HistoricTaskInstance value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField("id", value.getId());
+            jsonGenerator.writeStringField("name", value.getName());
+            jsonGenerator.writeStringField("assignee", value.getAssignee());
+            jsonGenerator.writeStringField("startTime", formatISO8601(value.getStartTime()));
+            jsonGenerator.writeStringField("endTime", formatISO8601(value.getEndTime()));
+            jsonGenerator.writeEndObject();
+        }
+    }
+
+    private static class CamundaHistoricProcessInstanceSerializer extends BpmnSerializer<HistoricProcessInstance> {
+        protected CamundaHistoricProcessInstanceSerializer() {
+            super(HistoricProcessInstance.class);
+        }
+
+        @Override
+        public void serialize(HistoricProcessInstance value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField("id", value.getId());
+            jsonGenerator.writeStringField("businessKey", value.getBusinessKey());
+            jsonGenerator.writeStringField("processDefinitionId", value.getProcessDefinitionId());
+            jsonGenerator.writeStringField("processDefinitionKey", value.getProcessDefinitionKey());
+            jsonGenerator.writeStringField("startTime", formatISO8601(value.getStartTime()));
+            jsonGenerator.writeStringField("endTime", formatISO8601(value.getEndTime()));
+            jsonGenerator.writeStringField("state", value.getState());
             jsonGenerator.writeEndObject();
         }
     }
@@ -78,6 +128,8 @@ public class JacksonConfig {
         module.addSerializer(new CamundaProcessDefinitionSerializer());
         module.addSerializer(new CamundaProcessInstanceSerializer());
         module.addSerializer(new CamundaTaskSerializer());
+        module.addSerializer(new CamundaHistoricProcessInstanceSerializer());
+        module.addSerializer(new CamundaHistoricTaskSerializer());
         objectMapper.registerModule(module);
         objectMapper.setDefaultPropertyInclusion(include);
         log.debug("object property inclusion: {}", include);
