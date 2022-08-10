@@ -146,15 +146,18 @@ public class WorkflowProcService {
         formInst.setProcDefId(procDef.getId());
         formInst.setFormDefId(formDef.getId());
         // collect form related variables
-        var providedFormVar = dto.getForm().getItemList().stream().collect(Collectors.toMap(ProcInstDTO.FormInstDTO.FormInstItemDTO::getFormItemId, e -> e));
+        var providedFormVar = Optional.ofNullable(dto.getForm())
+                .map(ProcInstDTO.FormInstDTO::getItemList).orElse(Collections.emptyList())
+                .stream().collect(Collectors.toMap(ProcInstDTO.FormInstDTO.FormInstItemDTO::getFormItemKey, e -> e));
         var requiredVar = procDefVariableService.lambdaQuery().eq(ProcDefVariable::getProcDefId, procDef.getId()).list();
         var groupedRequiredVar = requiredVar.stream().collect(Collectors.groupingBy(ProcDefVariable::getSourceType));
         List<ProcDefVariable> requiredFormVar = groupedRequiredVar.getOrDefault(VariableSourceType.FORM, Collections.emptyList());
         List<FormInstItem> items = requiredFormVar.stream().map(e -> {
             String varId = e.getSourceIdentifier();
+            String varKey = e.getVariableKey();
             var item = providedFormVar.get(varId);
             Assert.notNull(item, "变量缺失: required id:{} type:{}", varId, e.getSourceType());
-            procVar.put(varId, item.getFormItemVal());
+            procVar.put(varKey, item.getFormItemVal());
             return formInstItemService.toEntity(item);
         }).toList();
         // collect the user related variables

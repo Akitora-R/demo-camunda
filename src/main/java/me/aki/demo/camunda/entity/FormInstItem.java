@@ -24,8 +24,8 @@ public class FormInstItem extends BaseEntity {
     /**
      * 表单组件定义ID
      */
-    @ApiModelProperty(name = "表单组件定义ID")
-    private String formItemId;
+    @ApiModelProperty(name = "表单组件定义KEY")
+    private String formItemKey;
     /**
      * 表单组件值
      */

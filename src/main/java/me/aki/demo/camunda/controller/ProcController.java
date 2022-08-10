@@ -6,11 +6,13 @@ import me.aki.demo.camunda.entity.ProcDef;
 import me.aki.demo.camunda.entity.dto.ProcDefDTO;
 import me.aki.demo.camunda.entity.dto.ProcInstDTO;
 import me.aki.demo.camunda.entity.dto.R;
+import me.aki.demo.camunda.entity.dto.TaskDTO;
 import me.aki.demo.camunda.entity.dto.query.ProcInstPagedQueryParam;
 import me.aki.demo.camunda.entity.vo.ProcDefVO;
 import me.aki.demo.camunda.entity.vo.ProcInstVO;
 import me.aki.demo.camunda.service.WorkflowProcService;
 import me.aki.demo.camunda.service.ProcDefService;
+import me.aki.demo.camunda.service.WorkflowTaskService;
 import me.aki.demo.camunda.util.ReqUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -22,10 +24,12 @@ import org.springframework.web.bind.annotation.*;
 public class ProcController {
 
     private final WorkflowProcService workflowProcService;
+    private final WorkflowTaskService workflowTaskService;
     private final ProcDefService procDefService;
 
-    public ProcController(WorkflowProcService workflowProcService, ProcDefService procDefService) {
+    public ProcController(WorkflowProcService workflowProcService, WorkflowTaskService workflowTaskService, ProcDefService procDefService) {
         this.workflowProcService = workflowProcService;
+        this.workflowTaskService = workflowTaskService;
         this.procDefService = procDefService;
     }
 
@@ -75,8 +79,9 @@ public class ProcController {
         return R.ok();
     }
 
-    @PutMapping("/task/{id}")
-    public R<Object> completeTask(@PathVariable String id) {
+    @PutMapping("/task")
+    public R<Object> completeTask(@Validated @RequestBody TaskDTO dto) {
+        workflowTaskService.completeTask(dto);
         return R.ok();
     }
 }

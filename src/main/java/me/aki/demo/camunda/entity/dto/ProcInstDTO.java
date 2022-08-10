@@ -4,30 +4,41 @@ import lombok.Data;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
 public class ProcInstDTO {
-    private String id;
+    /**
+     * 流程定义id
+     */
     @NotBlank
     private String procDefId;
+    /**
+     * 表单定义id
+     */
     private String formDefId;
+    /**
+     * camunda 流程实例id，唯一
+     */
     private String camundaProcInstId;
+    /**
+     * camunda 流程实例businessKey，应填来源业务主键，可能不唯一
+     */
     @NotBlank
     private String camundaProcInstBusinessKey;
-    @NotNull
+    /**
+     * 表单数据，nullable
+     */
     @Valid
     private FormInstDTO form;
 
     @Data
     public static class FormInstDTO {
-        @NotNull
         private List<FormInstItemDTO> itemList;
 
         @Data
         public static class FormInstItemDTO {
-            private String formItemId;
+            private String formItemKey;
             private String formItemVal;
         }
     }

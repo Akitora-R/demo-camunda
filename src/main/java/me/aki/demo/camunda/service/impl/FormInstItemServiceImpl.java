@@ -13,6 +13,6 @@ public class FormInstItemServiceImpl extends ServiceImpl<FormInstItemMapper, For
 
     @Override
     public FormInstItem toEntity(ProcInstDTO.FormInstDTO.FormInstItemDTO dto) {
-        return BeanUtil.copyProperties(dto,FormInstItem.class);
+        return BeanUtil.copyProperties(dto, FormInstItem.class);
     }
 }
