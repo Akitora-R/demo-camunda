@@ -21,7 +21,7 @@ public class ProcDefNodeServiceImpl extends ServiceImpl<ProcDefNodeMapper, ProcD
         ProcDefNode pdn = new ProcDefNode();
         pdn.setNodeLabel(dto.getLabel());
         pdn.setNodeShape(dto.getShape());
-        pdn.setNodeJsonId(dto.getId());
+        pdn.setNodeId(dto.getId());
         ArrayList<ProcDefNodeProp> props = new ArrayList<>();
         if (dto instanceof TaskFlowNodeDTO task) {
             props.add(new ProcDefNodeProp("code", task.getCode()));
@@ -33,5 +33,10 @@ public class ProcDefNodeServiceImpl extends ServiceImpl<ProcDefNodeMapper, ProcD
             props.add(new ProcDefNodeProp("condition", edge.getCondition()));
         }
         return new Pair<>(pdn, props);
+    }
+
+    @Override
+    public ProcDefNode findByCamundaBpmnElemId(String camundaElementId, String camundaProcDefId) {
+        return getBaseMapper().selectByCamundaBpmnElemId(camundaElementId, camundaProcDefId);
     }
 }

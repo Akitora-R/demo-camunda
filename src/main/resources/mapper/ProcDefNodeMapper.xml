@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="me.aki.demo.camunda.mapper.ProcDefNodeMapper">
+
+    <select id="selectByCamundaBpmnElemId" resultType="me.aki.demo.camunda.entity.ProcDefNode">
+        select WPDN.*
+        from WF_PROC_DEF_NODE WPDN
+                 left join WF_PROC_DEF WPD on WPDN.PROC_DEF_ID = WPD.ID
+                 left join WF_PROC_DEF_NODE_ELEMENT_REL_INFO WPDNERI on WPDNERI.PROC_DEF_NODE_ID = WPDN.NODE_ID
+        where WPD.CAMUNDA_PROC_DEF_ID = #{camundaProcDefId}
+          and WPDNERI.CAMUNDA_ELEMENT_ID = #{camundaElementId}
+    </select>
+</mapper>

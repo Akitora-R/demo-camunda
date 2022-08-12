@@ -59,6 +59,7 @@ public class WorkflowProcService {
     private final FormInstService formInstService;
     private final FormInstItemService formInstItemService;
     private final HistoryService historyService;
+    private final ProcInstTaskPropService procInstTaskPropService;
 
     public WorkflowProcService(ProcDefService procDefService,
                                ProcDefNodeService procDefNodeService,
@@ -72,7 +73,8 @@ public class WorkflowProcService {
                                RuntimeService runtimeService,
                                FormInstService formInstService,
                                FormInstItemService formInstItemService,
-                               HistoryService historyService) {
+                               HistoryService historyService,
+                               ProcInstTaskPropService procInstTaskPropService) {
         this.procDefService = procDefService;
         this.procDefNodeService = procDefNodeService;
         this.procDefNodePropService = procDefNodePropService;
@@ -86,6 +88,7 @@ public class WorkflowProcService {
         this.formInstService = formInstService;
         this.formInstItemService = formInstItemService;
         this.historyService = historyService;
+        this.procInstTaskPropService = procInstTaskPropService;
     }
 
     public ProcDefVO getProcDefVOById(String id) {
@@ -210,7 +213,7 @@ public class WorkflowProcService {
         ProcInstVO vo = new ProcInstVO();
         vo.setCamundaProcessInstance(historicProcessInstance);
         var taskInstanceList = historyService.createHistoricTaskInstanceQuery().processInstanceId(id).orderByHistoricActivityInstanceStartTime().desc().list()
-                .stream().map(e -> new TaskVO(e, null, null)).toList();
+                .stream().map(e -> new TaskVO(e, procInstTaskPropService.lambdaQuery().eq(ProcInstTaskProp::getCamundaTaskInstId, e.getId()).list())).toList();
         vo.setTaskList(taskInstanceList);
         return vo;
     }

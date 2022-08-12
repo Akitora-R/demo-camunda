@@ -10,4 +10,6 @@ import java.util.List;
 
 public interface ProcDefNodeService extends IService<ProcDefNode> {
     Pair<ProcDefNode, List<ProcDefNodeProp>> toEntity(NodeDTO dto);
+
+    ProcDefNode findByCamundaBpmnElemId(String camundaElementId,String camundaProcDefId);
 }

@@ -26,7 +26,7 @@ public class ProcDefNode extends BaseEntity {
      * 节点
      */
     @ApiModelProperty(name = "节点JsonId")
-    private String nodeJsonId;
+    private String nodeId;
     /**
      * 节点标签
      */
