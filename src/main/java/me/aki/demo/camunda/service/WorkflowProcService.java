@@ -16,6 +16,7 @@ import me.aki.demo.camunda.entity.dto.node.NodeLink;
 import me.aki.demo.camunda.entity.dto.node.impl.EdgeNodeDTO;
 import me.aki.demo.camunda.entity.dto.node.impl.StartEventFlowNodeDTO;
 import me.aki.demo.camunda.entity.dto.node.impl.TaskFlowNodeDTO;
+import me.aki.demo.camunda.entity.dto.query.ProcInstPagedQuery;
 import me.aki.demo.camunda.entity.dto.query.ProcInstPagedQueryParam;
 import me.aki.demo.camunda.entity.vo.FormDefVO;
 import me.aki.demo.camunda.entity.vo.ProcDefVO;
@@ -106,13 +107,12 @@ public class WorkflowProcService {
     }
 
     public void createProcessDefinition(ProcDefDTO dto) {
-        log.debug("start create process definition：{}", dto.getProcDefName());
+        log.debug("start create process definition: {}", dto.getProcDefName());
         // parse方法可能会修改dto的内容
         var nodeList = dto.getNodeList();
         var p = parse(dto.getProcDefName(), nodeList);
         // 保存元素关联信息
-        var idPair = p.getValue();
-        idPair.forEach((nodeId, bpmnIdList) -> bpmnIdList.forEach(bpmnId -> procDefNodeElementRelInfoService.saveRel(nodeId, bpmnId)));
+        p.getValue().forEach((nodeId, bpmnIdList) -> bpmnIdList.forEach(bpmnId -> procDefNodeElementRelInfoService.saveRel(nodeId, bpmnId)));
         var instance = p.getKey();
         var deploy = repositoryService.createDeployment().name(dto.getProcDefName()).addModelInstance("generatedDef.bpmn", instance).deployWithResult();
         Assert.isTrue(deploy.getDeployedProcessDefinitions().size() == 1, "部署流程出错");
@@ -191,6 +191,14 @@ public class WorkflowProcService {
         Integer size = queryParam.getSize();
         Integer page = queryParam.getPage();
         HistoricProcessInstanceQuery q = historyService.createHistoricProcessInstanceQuery();
+        ProcInstPagedQuery.ProcInstStatus status = queryParam.getQuery().getStatus();
+        if (status != null) {
+            switch (status) {
+                case ACTIVE -> q.active();
+                case COMPLETED -> q.completed();
+                case SUSPENDED -> q.suspended();
+            }
+        }
         List<HistoricProcessInstance> rec = q.orderByProcessInstanceStartTime().desc()
                 .listPage((page - 1) * size, size);
         long total = q.count();

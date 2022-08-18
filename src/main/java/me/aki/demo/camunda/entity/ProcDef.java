@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import me.aki.demo.camunda.enums.SourceBizType;
 
 /**
  * <p>流程定义实体类</p>
@@ -48,7 +49,7 @@ public class ProcDef extends BaseEntity {
     /**
      * 原始流程json
      */
-    @ApiModelProperty(name = "原始流程json")
-    private String originalJson;
+    @ApiModelProperty(name = "来源流程类型")
+    private SourceBizType sourceBizType;
 
 }

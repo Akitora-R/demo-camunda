@@ -1,9 +1,9 @@
 package me.aki.demo.camunda.entity.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import me.aki.demo.camunda.entity.dto.node.NodeDTO;
+import me.aki.demo.camunda.enums.SourceBizType;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -31,7 +31,8 @@ public class ProcDefDTO {
      * 原始流程json
      */
     @ApiModelProperty(name = "原始流程json")
-    private String originalJson;
+    @NotNull(message = "来源业务类型不可为null")
+    private SourceBizType sourceBizType;
     /**
      * 流程定义节点列表
      */

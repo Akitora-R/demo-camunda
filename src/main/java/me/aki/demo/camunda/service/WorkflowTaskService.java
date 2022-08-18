@@ -58,7 +58,7 @@ public class WorkflowTaskService {
     }
 
     private ProcDefNode getByTask(Task task) {
-        return procDefNodeService.findByCamundaBpmnElemId(task.getId(), task.getProcessDefinitionId());
+        return procDefNodeService.findByCamundaBpmnElemId(task.getTaskDefinitionKey(), task.getProcessDefinitionId());
     }
 
     private BiFunction<String, String, ProcInstTaskProp> getPropGenFunc(String camundaProcInstId, String camundaTaskInstId, String procDefId, String procDefNodeId) {
