@@ -114,15 +114,19 @@ public class WorkflowProcService {
         // 保存元素关联信息
         p.getValue().forEach((nodeId, bpmnIdList) -> bpmnIdList.forEach(bpmnId -> procDefNodeElementRelInfoService.saveRel(nodeId, bpmnId)));
         var instance = p.getKey();
+        // 保存camunda流程定义并确保成功
         var deploy = repositoryService.createDeployment().name(dto.getProcDefName()).addModelInstance("generatedDef.bpmn", instance).deployWithResult();
         Assert.isTrue(deploy.getDeployedProcessDefinitions().size() == 1, "部署流程出错");
         var pd = deploy.getDeployedProcessDefinitions().get(0);
+        // 保存流程定义
         var procDef = procDefService.toEntity(dto);
         procDef.setCamundaProcDefId(pd.getId());
         procDef.setCamundaProcDefKey(pd.getKey());
         procDefService.save(procDef);
         final var procDefId = procDef.getId();
+        // 保存表单信息
         formDefService.saveDTO(procDefId, dto.getFormDef());
+        // 保存流程定义节点、节点属性、节点变量
         nodeList.forEach(nodeDTO -> {
             var pair = procDefNodeService.toEntity(nodeDTO);
             var procDefNode = pair.getKey();
@@ -226,6 +230,13 @@ public class WorkflowProcService {
         return vo;
     }
 
+    /**
+     * dto图节点转为 {@link BpmnModelInstance}
+     *
+     * @param procName 流程定义名
+     * @param nodeList dto图节点
+     * @return pair of {@link BpmnModelInstance} -> { dto图节点id -> [{@link BpmnModelInstance} 节点id]}
+     */
     @SuppressWarnings({"unchecked", "rawtypes"})
     private Pair<BpmnModelInstance, Map<String, List<String>>> parse(String procName, List<NodeDTO> nodeList) {
         // 为保证根据每个task code生成的变量不重复，必须校验所有task节点中的code不重复。

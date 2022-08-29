@@ -49,7 +49,7 @@ public class ProcDef extends BaseEntity {
     /**
      * 原始流程json
      */
-    @ApiModelProperty(name = "来源流程类型")
+    @ApiModelProperty(name = "来源业务类型")
     private SourceBizType sourceBizType;
 
 }

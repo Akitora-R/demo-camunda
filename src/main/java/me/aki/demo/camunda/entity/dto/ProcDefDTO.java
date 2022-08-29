@@ -30,7 +30,7 @@ public class ProcDefDTO {
     /**
      * 原始流程json
      */
-    @ApiModelProperty(name = "原始流程json")
+    @ApiModelProperty(name = "来源业务类型")
     @NotNull(message = "来源业务类型不可为null")
     private SourceBizType sourceBizType;
     /**
