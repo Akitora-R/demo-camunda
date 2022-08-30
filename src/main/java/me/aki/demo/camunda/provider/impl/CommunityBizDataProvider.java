@@ -4,13 +4,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.Data;
 import me.aki.demo.camunda.enums.SourceBizType;
-import me.aki.demo.camunda.provider.BizFormDataProvider;
+import me.aki.demo.camunda.provider.BizDataProvider;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 
 @Component
-public class CommunityFormDataProvider implements BizFormDataProvider<CommunityFormDataProvider.CommunityInfo> {
+public class CommunityBizDataProvider implements BizDataProvider<CommunityBizDataProvider.CommunityInfo> {
 
     @Override
     public IPage<CommunityInfo> getData(String identifier) {

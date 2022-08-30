@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.extern.slf4j.Slf4j;
 import me.aki.demo.camunda.entity.dto.R;
 import me.aki.demo.camunda.enums.SourceBizType;
-import me.aki.demo.camunda.provider.BizFormDataProvider;
+import me.aki.demo.camunda.provider.BizDataProvider;
 import me.aki.demo.camunda.provider.FormDataProvider;
 import me.aki.demo.camunda.provider.UserDataProvider;
 import org.springframework.context.ApplicationContext;
@@ -27,14 +27,14 @@ public class ResourceController {
     // FIXME: 2022/7/28 unify it into one single service
     private final Map<String, FormDataProvider<?>> formDataProviderMap;
     private final Map<String, UserDataProvider> userDataProviderMap;
-    private final Map<SourceBizType, BizFormDataProvider<?>> bizFormDataProviderMap;
+    private final Map<SourceBizType, BizDataProvider<?>> bizDataProviderMap;
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public ResourceController(ApplicationContext applicationContext) {
         this.formDataProviderMap = (Map) applicationContext.getBeansOfType(FormDataProvider.class);
         this.userDataProviderMap = applicationContext.getBeansOfType(UserDataProvider.class);
-        this.bizFormDataProviderMap = (Map) applicationContext.getBeansOfType(BizFormDataProvider.class)
-                .values().stream().collect(Collectors.groupingBy(BizFormDataProvider::getType));
+        this.bizDataProviderMap = (Map) applicationContext.getBeansOfType(BizDataProvider.class)
+                .values().stream().collect(Collectors.groupingBy(BizDataProvider::getType));
     }
 
     @GetMapping("/user/names")
@@ -48,8 +48,8 @@ public class ResourceController {
     }
 
     @GetMapping("/biz/names")
-    public R<Collection<SourceBizType>> getBizFormProviderNames() {
-        return R.ok(bizFormDataProviderMap.keySet());
+    public R<Collection<SourceBizType>> getBizProviderNames() {
+        return R.ok(bizDataProviderMap.keySet());
     }
 
     @GetMapping("/form/data/{name}")
@@ -72,7 +72,7 @@ public class ResourceController {
 
     @GetMapping("/biz/data/{type}/{id}")
     public ResponseEntity<R<IPage<?>>> getBizDataByType(@PathVariable("type") SourceBizType type, @PathVariable("id") String id) {
-        var p = bizFormDataProviderMap.get(type);
+        var p = bizDataProviderMap.get(type);
         if (p != null) {
             return ResponseEntity.ok(R.ok(p.getData(id)));
         }

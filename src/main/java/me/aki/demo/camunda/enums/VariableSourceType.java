@@ -4,5 +4,5 @@ public enum VariableSourceType {
     BASE,
     FORM,
     BEAN,
-    BIZ_FORM,
+    BIZ,
 }
