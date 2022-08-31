@@ -8,21 +8,21 @@ import me.aki.demo.camunda.provider.BizDataProvider;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.List;
 
 @Component
-public class CommunityBizDataProvider implements BizDataProvider<CommunityBizDataProvider.CommunityInfo> {
+public class CommunityBizDataProvider implements BizDataProvider<CommunityBizDataProvider.CommunityInfo, CommunityBizDataProvider.CommunityQuery> {
 
     @Override
-    public IPage<CommunityInfo> getData(String identifier) {
+    public CommunityInfo getData(String identifier) {
         CommunityInfo communityInfo = new CommunityInfo();
         communityInfo.setId("demo_1");
-        Page<CommunityInfo> p = new Page<>();
-        p.setTotal(1);
-        p.setSize(1);
-        p.setPages(1);
-        p.setCurrent(1);
-        p.setRecords(Collections.singletonList(communityInfo));
-        return p;
+        return communityInfo;
+    }
+
+    @Override
+    public IPage<CommunityInfo> getPage(CommunityQuery query) {
+        return null;
     }
 
     @Override
@@ -36,5 +36,17 @@ public class CommunityBizDataProvider implements BizDataProvider<CommunityBizDat
     @Data
     public static class CommunityInfo {
         private String id;
+    }
+
+    public static class CommunityQuery implements BizDataQuery<CommunityInfo> {
+        @Override
+        public IPage<CommunityInfo> getPage() {
+            return null;
+        }
+
+        @Override
+        public List<BizDataQueryFormItem> getFormItemList() {
+            return null;
+        }
     }
 }

@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.extern.slf4j.Slf4j;
 import me.aki.demo.camunda.entity.dto.R;
 import me.aki.demo.camunda.enums.SourceBizType;
-import me.aki.demo.camunda.provider.BizDataProvider;
-import me.aki.demo.camunda.provider.FormDataProvider;
-import me.aki.demo.camunda.provider.UserDataProvider;
-import org.springframework.context.ApplicationContext;
+import me.aki.demo.camunda.provider.DataProvider;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,45 +13,36 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/resource")
 @Slf4j
 public class ResourceController {
 
-    // FIXME: 2022/7/28 unify it into one single service
-    private final Map<String, FormDataProvider<?>> formDataProviderMap;
-    private final Map<String, UserDataProvider> userDataProviderMap;
-    private final Map<SourceBizType, BizDataProvider<?>> bizDataProviderMap;
+    private final DataProvider dataProvider;
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    public ResourceController(ApplicationContext applicationContext) {
-        this.formDataProviderMap = (Map) applicationContext.getBeansOfType(FormDataProvider.class);
-        this.userDataProviderMap = applicationContext.getBeansOfType(UserDataProvider.class);
-        this.bizDataProviderMap = (Map) applicationContext.getBeansOfType(BizDataProvider.class)
-                .values().stream().collect(Collectors.groupingBy(BizDataProvider::getType));
+    public ResourceController(DataProvider dataProvider) {
+        this.dataProvider = dataProvider;
     }
 
     @GetMapping("/user/names")
     public R<Collection<String>> getUserProviderNames() {
-        return R.ok(userDataProviderMap.keySet());
+        return R.ok(dataProvider.getUserDataProviderMap().keySet());
     }
 
     @GetMapping("/form/names")
     public R<Collection<String>> getFormProviderNames() {
-        return R.ok(formDataProviderMap.keySet());
+        return R.ok(dataProvider.getFormDataProviderMap().keySet());
     }
 
     @GetMapping("/biz/names")
     public R<Collection<SourceBizType>> getBizProviderNames() {
-        return R.ok(bizDataProviderMap.keySet());
+        return R.ok(dataProvider.getBizDataProviderMap().keySet());
     }
 
     @GetMapping("/form/data/{name}")
     public ResponseEntity<R<?>> getFormDataByName(@PathVariable("name") String name) {
-        var p = formDataProviderMap.get(name);
+        var p = dataProvider.getFormDataProviderMap().get(name);
         if (p != null) {
             return ResponseEntity.ok(R.ok(p.getData()));
         }
@@ -63,7 +51,7 @@ public class ResourceController {
 
     @GetMapping("/user/data/{name}")
     public ResponseEntity<R<?>> getUserDataByName(@PathVariable("name") String name) {
-        var p = userDataProviderMap.get(name);
+        var p = dataProvider.getUserDataProviderMap().get(name);
         if (p != null) {
             return ResponseEntity.ok(R.ok(p.getUser("self_user_id")));
         }
@@ -71,8 +59,8 @@ public class ResourceController {
     }
 
     @GetMapping("/biz/data/{type}/{id}")
-    public ResponseEntity<R<IPage<?>>> getBizDataByType(@PathVariable("type") SourceBizType type, @PathVariable("id") String id) {
-        var p = bizDataProviderMap.get(type);
+    public ResponseEntity<R<?>> getBizDataDetail(@PathVariable("type") SourceBizType type, @PathVariable("id") String id) {
+        var p = dataProvider.getBizDataProviderMap().get(type);
         if (p != null) {
             return ResponseEntity.ok(R.ok(p.getData(id)));
         }
