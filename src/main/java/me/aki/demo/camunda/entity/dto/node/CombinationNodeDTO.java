@@ -1,5 +1,8 @@
 package me.aki.demo.camunda.entity.dto.node;
 
+/**
+ * 可一对应多bpmn节点的流程节点
+ */
 public interface CombinationNodeDTO extends FlowNodeDTO {
     /**
      * 定义该组节点内接收上一个节点的指向的节点id

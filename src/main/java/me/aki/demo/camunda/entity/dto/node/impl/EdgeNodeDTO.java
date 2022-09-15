@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import me.aki.demo.camunda.constant.IdPattern;
-import me.aki.demo.camunda.entity.dto.ProcDefVariableDTO;
+import me.aki.demo.camunda.entity.dto.VariableDefDTO;
 import me.aki.demo.camunda.entity.dto.node.NodeDTO;
 import me.aki.demo.camunda.enums.JsonNodeShape;
 
@@ -25,7 +25,7 @@ public class EdgeNodeDTO implements NodeDTO {
     private String condition;
     private String source;
     private String target;
-    private List<ProcDefVariableDTO> variableList;
+    private List<VariableDefDTO> variableList;
 
     @Override
     public String toString() {

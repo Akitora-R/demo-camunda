@@ -4,5 +4,9 @@ public enum FormItemType {
     TEXT_INPUT,
     NUM_INPUT,
     SELECT,
-    CASCADING
+    /**
+     * 只有是/否的选择
+     */
+    BOOLEAN,
+    CASCADING,
 }

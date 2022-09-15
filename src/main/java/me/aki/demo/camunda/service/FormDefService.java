@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface FormDefService extends IService<FormDef> {
-    void saveDTO(String procDefId, FormDefDTO dto);
+    void saveDTO(String procDefId, String procDefNodeId, FormDefDTO dto);
 
     FormDefVO getVOByProcDefId(String procDefId);
+
+    FormDefVO getVOByProcDefNodeId(String procDefNodeId);
 }

@@ -1,9 +1,9 @@
 package me.aki.demo.camunda.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import me.aki.demo.camunda.entity.ProcInstTaskProp;
+import me.aki.demo.camunda.entity.VariableInst;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface ProcInstTaskPropMapper extends BaseMapper<ProcInstTaskProp> {
+public interface VariableInstMapper extends BaseMapper<VariableInst> {
 }

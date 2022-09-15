@@ -2,7 +2,8 @@ package me.aki.demo.camunda.enums;
 
 public enum VariableSourceType {
     BASE,
-    FORM,
+    PROC_FORM,
+    TASK_FORM,
     BEAN,
     BIZ,
 }

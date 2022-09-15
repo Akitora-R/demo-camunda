@@ -2,13 +2,16 @@ package me.aki.demo.camunda.entity.dto.node;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import me.aki.demo.camunda.entity.dto.ProcDefVariableDTO;
+import me.aki.demo.camunda.entity.dto.VariableDefDTO;
 import me.aki.demo.camunda.entity.dto.node.impl.*;
 import me.aki.demo.camunda.enums.JsonNodeShape;
 
 import java.util.List;
 import java.util.function.BiConsumer;
 
+/**
+ * 流程定义节点
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "shape")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = EdgeNodeDTO.class, name = "EDGE"),
@@ -24,7 +27,7 @@ public interface NodeDTO {
 
     JsonNodeShape getShape();
 
-    List<ProcDefVariableDTO> getVariableList();
+    List<VariableDefDTO> getVariableList();
 
     void tidyUp(BiConsumer<String, String> onIdChange);
 }

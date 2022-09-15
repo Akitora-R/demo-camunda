@@ -6,11 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import me.aki.demo.camunda.constant.IdPattern;
-import me.aki.demo.camunda.entity.dto.ProcDefVariableDTO;
+import me.aki.demo.camunda.entity.dto.VariableDefDTO;
 import me.aki.demo.camunda.entity.dto.node.FlowNodeDTO;
 import me.aki.demo.camunda.enums.JsonNodeShape;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
-import org.camunda.bpm.model.bpmn.builder.EndEventBuilder;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +24,7 @@ import java.util.function.BiConsumer;
 public class EndEventFlowNodeDTO implements FlowNodeDTO {
     private String id;
     private String label;
-    private List<ProcDefVariableDTO> variableList;
+    private List<VariableDefDTO> variableList;
 
     @Override
     public String toString() {

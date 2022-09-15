@@ -8,6 +8,7 @@ import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.HistoricActivityInstance;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.history.HistoricVariableInstance;
+import org.camunda.bpm.engine.repository.DeploymentWithDefinitions;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
@@ -15,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,40 +39,44 @@ class DemoAppTests {
 
     @Test
     void dep() {
-        repositoryService.createDeployment()
-                .addClasspathResource("demo_processes/generated_diagram_1.bpmn")
-                .deploy();
+        String time = LocalDateTime.now().toString();
+        DeploymentWithDefinitions result = repositoryService.createDeployment()
+                .addModelInstance(time + ".bpmn", BpmnTests.genCountersignatureBpm())
+                .name("test bpmn when " + time)
+                .deployWithResult();
+        for (ProcessDefinition definition : result.getDeployedProcessDefinitions()) {
+            System.out.printf("deployed: id - %s key - %s\n", definition.getId(), definition.getKey());
+        }
     }
 
     @Test
     void listProcDef() {
-        for (ProcessDefinition processDefinition : repositoryService.createProcessDefinitionQuery().active().latestVersion().list()) {
+        for (ProcessDefinition processDefinition : repositoryService.createProcessDefinitionQuery().latestVersion().list()) {
             log.info("{} {} {}", processDefinition.getId(), processDefinition.getKey(), processDefinition.getName());
         }
     }
 
-    String bk = "some_bk2";
+    String bk = "multiTaskInst";
 
     @Test
     void startProc() {
-        ProcessInstance processInstance = runtimeService.startProcessInstanceById("b011d11d-fea1-11ec-962e-2c16dbac39c7", bk);
+        HashMap<String, Object> m = new HashMap<>();
+        m.put("chargerAssigneeList", List.of("1", "3", "5"));
+        ProcessInstance processInstance = runtimeService.startProcessInstanceById("64bdd6a0-2f52-11ed-8687-2c16dbac39c7", bk, m);
         System.out.println(processInstance.getId());
     }
 
     @Test
-    void queryRunningInst() {
+    void queryRunningTask() {
         for (Task task : taskService.createTaskQuery().active().list()) {
-            log.info("{} {}", task.getId(), task.getName());
+            log.info("id: {} name: {} Assignee: {}", task.getId(), task.getName(), task.getAssignee());
         }
     }
 
     @Test
     void completeTask() {
-        String procInstId = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(bk).singleResult().getId();
-        List<Task> taskList = taskService.createTaskQuery().processInstanceId(procInstId).list();
-        for (Task task : taskList) {
-            taskService.complete(task.getId(), Map.of("approval", false));
-        }
+        Map<String, Object> param = Map.of("chargerApproval", false);
+        taskService.complete("7de1fee9-2f52-11ed-aa2b-2c16dbac39c7", param);
     }
 
     @Test
@@ -84,7 +91,7 @@ class DemoAppTests {
 
     @Test
     void queryHistoricVar() {
-        for (HistoricProcessInstance historicProcessInstance : historyService.createHistoricProcessInstanceQuery().completed().processInstanceBusinessKey(bk).list()) {
+        for (HistoricProcessInstance historicProcessInstance : historyService.createHistoricProcessInstanceQuery().processInstanceBusinessKey(bk).list()) {
             log.info("{}", historicProcessInstance);
             List<HistoricVariableInstance> varList = historyService.createHistoricVariableInstanceQuery().processInstanceId(historicProcessInstance.getId()).list();
             for (HistoricVariableInstance v : varList) {

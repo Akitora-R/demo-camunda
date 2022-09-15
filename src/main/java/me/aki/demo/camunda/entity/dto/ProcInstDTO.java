@@ -2,7 +2,6 @@ package me.aki.demo.camunda.entity.dto;
 
 import lombok.Data;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 
@@ -29,17 +28,6 @@ public class ProcInstDTO {
     /**
      * 表单数据，nullable
      */
-    @Valid
-    private FormInstDTO form;
+    private List<VariableInstDTO> variableList;
 
-    @Data
-    public static class FormInstDTO {
-        private List<FormInstItemDTO> itemList;
-
-        @Data
-        public static class FormInstItemDTO {
-            private String formItemKey;
-            private String formItemVal;
-        }
-    }
 }

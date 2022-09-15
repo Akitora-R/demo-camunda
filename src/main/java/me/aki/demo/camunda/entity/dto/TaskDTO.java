@@ -8,8 +8,7 @@ import java.util.List;
 /**
  * <p>流程任务实例的POJO类</p>
  * <p>
- *     针对流程实例中的各种task节点，目前数据库中只持久化了两个固定的属性，分别为 <strong>approval</strong> 和
- *     <strong>comment</strong>，最终的设计目标应当是对应每个task节点提供定制表单的能力，和流程定义一样。
+ *     和流程一样，每个任务都可以有各自的表单。
  * </p>
  */
 @Data
@@ -20,17 +19,8 @@ public class TaskDTO {
     @NotBlank
     private String taskId;
     /**
-     * 表单数据，nullable
+     * 表示变量数据的列表
      */
-    private TaskFormInstDTO form;
+    private List<VariableInstDTO> variableList;
 
-    @Data
-    public static class TaskFormInstDTO {
-        private List<TaskFormInstItemDTO> itemList;
-        @Data
-        public static class TaskFormInstItemDTO {
-            private String formItemKey;
-            private String formItemVal;
-        }
-    }
 }

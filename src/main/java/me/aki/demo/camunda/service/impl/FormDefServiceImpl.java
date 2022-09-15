@@ -22,8 +22,10 @@ public class FormDefServiceImpl extends ServiceImpl<FormDefMapper, FormDef> impl
     }
 
     @Override
-    public void saveDTO(String procDefId, FormDefDTO dto) {
-        dto.getFormDef().setProcDefId(procDefId);
+    public void saveDTO(String procDefId, String procDefNodeId, FormDefDTO dto) {
+        FormDef formDef = dto.getFormDef();
+        formDef.setProcDefId(procDefId);
+        formDef.setProcDefNodeId(procDefNodeId);
         save(dto.getFormDef());
         dto.getFormItemList().forEach(e -> formItemService.saveDTO(dto.getFormDef().getId(), e));
     }
@@ -31,9 +33,19 @@ public class FormDefServiceImpl extends ServiceImpl<FormDefMapper, FormDef> impl
     @Override
     public FormDefVO getVOByProcDefId(String procDefId) {
         FormDef formDef = lambdaQuery().eq(FormDef::getProcDefId, procDefId).one();
+        return toVO(formDef);
+    }
+
+    @Override
+    public FormDefVO getVOByProcDefNodeId(String procDefNodeId) {
+        FormDef formDef = lambdaQuery().eq(FormDef::getProcDefNodeId, procDefNodeId).one();
+        return toVO(formDef);
+    }
+
+    private FormDefVO toVO(FormDef entity) {
         FormDefVO vo = new FormDefVO();
-        vo.setFormDef(formDef);
-        List<FormDefVO.FormItemVO> items = formItemService.getVOListByFormDefId(formDef.getId());
+        vo.setFormDef(entity);
+        List<FormDefVO.FormItemVO> items = formItemService.getVOListByFormDefId(entity.getId());
         vo.setFormItemList(items);
         return vo;
     }

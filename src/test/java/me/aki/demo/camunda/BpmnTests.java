@@ -14,7 +14,6 @@ import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.GatewayDirection;
 import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 import org.camunda.bpm.model.bpmn.builder.ProcessBuilder;
-import org.camunda.bpm.model.xml.instance.DomElement;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -25,22 +24,29 @@ public class BpmnTests {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    @Test
-    void genBpmn() {
-        BpmnModelInstance modelInstance = Bpmn.createExecutableProcess().name("GENERATED_PROC1")
+    public static BpmnModelInstance genCountersignatureBpm() {
+        BpmnModelInstance modelInstance = Bpmn.createExecutableProcess("process_e7b76d1b-b6f6-49db-b442-1904359131a1").name("GENERATED_PROC1")
                 .startEvent()
-                .userTask().name("主管审核").camundaAssignee("${chargerAssignee}").camundaCandidateUsers("${chargerCandidate}")
-                .camundaOutputParameter("approval_1", "${approval}")
+                .userTask().name("主管审核会签").camundaAssignee("${chargerAssignee}")
+                    .multiInstance().parallel().camundaCollection("${chargerAssigneeList}").camundaElementVariable("chargerAssignee")
+                    .completionCondition("${!chargerApproval}")
+                    .multiInstanceDone()
                 .exclusiveGateway()
                 .gatewayDirection(GatewayDirection.Diverging)
-                .condition("yes", "${approval_1}")
+                .condition("yes", "${chargerApproval}")
                 .serviceTask().name("服务调用任务").camundaClass(ApprovedDelegate.class)
                 .endEvent().name("finish")
                 .moveToLastGateway()
-                .condition("no", "${!approval_2}")
+                .condition("no", "${!chargerApproval}")
                 .endEvent().name("rejected")
                 .done();
         System.out.println(Bpmn.convertToString(modelInstance));
+        return modelInstance;
+    }
+
+    @Test
+    void run() {
+        BpmnTests.genCountersignatureBpm();
     }
 
     BpmnModelInstance genInst() {

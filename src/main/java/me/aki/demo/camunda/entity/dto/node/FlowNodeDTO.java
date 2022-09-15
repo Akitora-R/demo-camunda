@@ -4,6 +4,9 @@ import org.camunda.bpm.model.bpmn.builder.AbstractFlowNodeBuilder;
 
 import java.util.List;
 
+/**
+ * 非连接线的流程定义节点
+ */
 public interface FlowNodeDTO extends NodeDTO {
 
     /**

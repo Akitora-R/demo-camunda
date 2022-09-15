@@ -60,6 +60,6 @@ public class FormDefDTO {
          */
         @ApiModelProperty(name = "子属性")
         @Valid
-        List<FormItemPropDTO> children;
+        private List<FormItemPropDTO> children;
     }
 }
