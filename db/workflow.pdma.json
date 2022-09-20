@@ -4,7 +4,7 @@
   "avatar": "",
   "version": "4.1.1",
   "createdTime": "2022-6-28 10:18:07",
-  "updatedTime": "2022-9-15 10:33:17",
+  "updatedTime": "2022-9-20 14:58:06",
   "dbConns": [],
   "profile": {
     "default": {
@@ -3855,6 +3855,23 @@
           "id": "09F8D9A8-7592-4A93-AF6E-27C29DE2BA83"
         },
         {
+          "defKey": "PARENT_PROP_ID",
+          "defName": "父属性ID",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
+          "refDict": "",
+          "extProps": {},
+          "id": "9B231D07-027D-4E54-96CF-D6BD57770C42"
+        },
+        {
           "defKey": "PROP_KEY",
           "defName": "属性KEY",
           "comment": "",
@@ -6076,6 +6093,16 @@
       "canvasData": {
         "cells": [
           {
+            "id": "8eb82c98-63b8-4fee-a4b8-088faee75ac1",
+            "shape": "table",
+            "position": {
+              "x": -578,
+              "y": 380
+            },
+            "count": 0,
+            "originKey": "109ADE60-BF0B-4D09-B62E-C2C5CD317197"
+          },
+          {
             "id": "fcae8623-d468-4dd5-9504-0aedbb7e0037",
             "shape": "erdRelation",
             "source": {
@@ -6246,7 +6273,12 @@
             "vertices": [],
             "fillColor": "#ACDAFC",
             "router": {
-              "name": "normal"
+              "name": "normal",
+              "args": {
+                "excludeShapes": [
+                  "group"
+                ]
+              }
             }
           },
           {
@@ -6262,40 +6294,7 @@
             },
             "relation": "1:n",
             "vertices": [],
-            "fillColor": "#ACDAFC",
-            "router": {
-              "name": "manhattan"
-            }
-          },
-          {
-            "id": "3e86852c-332a-4e4a-b23e-cd58ef25bf55",
-            "shape": "table",
-            "position": {
-              "x": 30,
-              "y": -512
-            },
-            "count": 0,
-            "originKey": "F07B031D-B89C-4B8C-90B6-78E61F1D8D49"
-          },
-          {
-            "id": "6a635a6a-a43c-47da-890a-8b5333a4f751",
-            "shape": "table",
-            "position": {
-              "x": 30,
-              "y": -343
-            },
-            "count": 0,
-            "originKey": "D8E757D7-59E2-48EB-B32F-9B0E26407F2E"
-          },
-          {
-            "id": "8eb82c98-63b8-4fee-a4b8-088faee75ac1",
-            "shape": "table",
-            "position": {
-              "x": -578,
-              "y": 380
-            },
-            "count": 0,
-            "originKey": "109ADE60-BF0B-4D09-B62E-C2C5CD317197"
+            "fillColor": "#ACDAFC"
           },
           {
             "id": "1ca72159-1112-41a4-9443-00970d6c4838",
@@ -6329,26 +6328,6 @@
             "originKey": "DE9B592D-3796-41BE-87D2-99BABD68E863"
           },
           {
-            "id": "1d1ca448-8d27-4542-b38f-1513a68ec4ed",
-            "shape": "table",
-            "position": {
-              "x": -589,
-              "y": -643
-            },
-            "count": 0,
-            "originKey": "B0750E0D-2676-4086-9D22-4F38F838898A"
-          },
-          {
-            "id": "3fc01992-877e-4fb9-991c-5a41ca23bfb1",
-            "shape": "table",
-            "position": {
-              "x": 30,
-              "y": -658
-            },
-            "count": 0,
-            "originKey": "1233C3D2-7D85-4CE1-9F22-1A6610F27E73"
-          },
-          {
             "id": "cb9a3bf1-a9d0-4156-b27b-e0ba48ce54f7",
             "shape": "table",
             "position": {
@@ -6359,6 +6338,26 @@
             "originKey": "EBD1ADD5-C40D-4A73-AC13-1996015811B3"
           },
           {
+            "id": "1d1ca448-8d27-4542-b38f-1513a68ec4ed",
+            "shape": "table",
+            "position": {
+              "x": -589,
+              "y": -643
+            },
+            "count": 0,
+            "originKey": "B0750E0D-2676-4086-9D22-4F38F838898A"
+          },
+          {
+            "id": "3e86852c-332a-4e4a-b23e-cd58ef25bf55",
+            "shape": "table",
+            "position": {
+              "x": 30,
+              "y": -512
+            },
+            "count": 0,
+            "originKey": "F07B031D-B89C-4B8C-90B6-78E61F1D8D49"
+          },
+          {
             "id": "a87042c2-7011-4d42-b115-d6e910124ba6",
             "shape": "table",
             "position": {
@@ -6367,6 +6366,26 @@
             },
             "count": 0,
             "originKey": "87095D42-5A09-41B5-8971-C34EA21AC8A7"
+          },
+          {
+            "id": "6a635a6a-a43c-47da-890a-8b5333a4f751",
+            "shape": "table",
+            "position": {
+              "x": 30,
+              "y": -343
+            },
+            "count": 0,
+            "originKey": "D8E757D7-59E2-48EB-B32F-9B0E26407F2E"
+          },
+          {
+            "id": "3fc01992-877e-4fb9-991c-5a41ca23bfb1",
+            "shape": "table",
+            "position": {
+              "x": 30,
+              "y": -678
+            },
+            "count": 0,
+            "originKey": "1233C3D2-7D85-4CE1-9F22-1A6610F27E73"
           }
         ]
       },
