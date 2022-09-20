@@ -12,6 +12,7 @@ import java.util.function.BiConsumer;
 /**
  * 流程定义节点
  */
+// 导致shape重复出现在json中，possible solution: https://stackoverflow.com/questions/18237222/duplicate-json-field-with-jackson
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "shape")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = EdgeNodeDTO.class, name = "EDGE"),

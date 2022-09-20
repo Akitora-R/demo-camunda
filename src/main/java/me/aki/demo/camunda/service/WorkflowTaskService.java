@@ -2,7 +2,7 @@ package me.aki.demo.camunda.service;
 
 import cn.hutool.core.lang.Assert;
 import me.aki.demo.camunda.entity.ProcDefNode;
-import me.aki.demo.camunda.entity.ProcDefVariable;
+import me.aki.demo.camunda.entity.VariableDef;
 import me.aki.demo.camunda.entity.VariableInst;
 import me.aki.demo.camunda.entity.dto.TaskDTO;
 import me.aki.demo.camunda.entity.dto.VariableInstDTO;
@@ -21,16 +21,16 @@ import java.util.stream.Collectors;
 public class WorkflowTaskService {
     private final TaskService taskService;
     private final ProcDefNodeService procDefNodeService;
-    private final ProcDefVariableService procDefVariableService;
+    private final VariableDefService variableDefService;
     private final VariableInstService variableInstService;
 
     public WorkflowTaskService(TaskService taskService,
                                ProcDefNodeService procDefNodeService,
-                               ProcDefVariableService procDefVariableService,
+                               VariableDefService variableDefService,
                                VariableInstService variableInstService) {
         this.taskService = taskService;
         this.procDefNodeService = procDefNodeService;
-        this.procDefVariableService = procDefVariableService;
+        this.variableDefService = variableDefService;
         this.variableInstService = variableInstService;
     }
 
@@ -41,7 +41,7 @@ public class WorkflowTaskService {
         final String camundaProcInstId = task.getProcessInstanceId();
         Map<String, String> formMap = Optional.ofNullable(dto.getVariableList()).orElse(Collections.emptyList()).stream()
                 .filter(e -> e.getSourceType() == VariableSourceType.TASK_FORM).collect(Collectors.toMap(VariableInstDTO::getSourceIdentifier, VariableInstDTO::getVal));
-        List<ProcDefVariable> requiredVar = procDefVariableService.lambdaQuery().eq(ProcDefVariable::getProcDefNodeId, procDefNode.getId()).list();
+        List<VariableDef> requiredVar = variableDefService.lambdaQuery().eq(VariableDef::getProcDefNodeId, procDefNode.getId()).list();
         // 筛选出任务表单变量并从提交的表单中获取
         Map<String, Object> varMap = requiredVar.stream()
                 .filter(v -> v.getSourceType() == VariableSourceType.TASK_FORM)
@@ -55,7 +55,7 @@ public class WorkflowTaskService {
                         variableInst.setVariableVal(varVal);
                         variableInstService.save(variableInst);
                     }
-                }).collect(Collectors.toMap(ProcDefVariable::getVariableKey, v -> formMap.get(v.getSourceIdentifier()), (a, b) -> a));
+                }).collect(Collectors.toMap(VariableDef::getVariableKey, v -> formMap.get(v.getSourceIdentifier()), (a, b) -> a));
         taskService.complete(dto.getTaskId(), varMap);
     }
 

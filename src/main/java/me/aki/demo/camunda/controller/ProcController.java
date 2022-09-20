@@ -1,22 +1,28 @@
 package me.aki.demo.camunda.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import me.aki.demo.camunda.entity.ProcDef;
 import me.aki.demo.camunda.entity.dto.ProcDefDTO;
 import me.aki.demo.camunda.entity.dto.ProcInstDTO;
 import me.aki.demo.camunda.entity.dto.R;
 import me.aki.demo.camunda.entity.dto.TaskDTO;
+import me.aki.demo.camunda.entity.dto.converter.NodeConverter;
+import me.aki.demo.camunda.entity.dto.node.NodeDTO;
 import me.aki.demo.camunda.entity.dto.query.ProcInstPagedQueryParam;
 import me.aki.demo.camunda.entity.vo.ProcDefVO;
 import me.aki.demo.camunda.entity.vo.ProcInstVO;
-import me.aki.demo.camunda.service.WorkflowProcService;
+import me.aki.demo.camunda.enums.SourceBizType;
 import me.aki.demo.camunda.service.ProcDefService;
+import me.aki.demo.camunda.service.WorkflowProcService;
 import me.aki.demo.camunda.service.WorkflowTaskService;
 import me.aki.demo.camunda.util.ReqUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/process")
@@ -26,17 +32,33 @@ public class ProcController {
     private final WorkflowProcService workflowProcService;
     private final WorkflowTaskService workflowTaskService;
     private final ProcDefService procDefService;
+    private final NodeConverter nodeConverter;
 
-    public ProcController(WorkflowProcService workflowProcService, WorkflowTaskService workflowTaskService, ProcDefService procDefService) {
+    public ProcController(WorkflowProcService workflowProcService,
+                          WorkflowTaskService workflowTaskService,
+                          ProcDefService procDefService,
+                          NodeConverter nodeConverter) {
         this.workflowProcService = workflowProcService;
         this.workflowTaskService = workflowTaskService;
         this.procDefService = procDefService;
+        this.nodeConverter = nodeConverter;
     }
 
     @PostMapping("/definition")
     public R<ProcDefDTO> createDefinition(@RequestBody @Validated ProcDefDTO dto) {
         workflowProcService.createProcessDefinition(dto);
         return R.ok(dto);
+    }
+
+    @PostMapping("/test/definition")
+    public R<Object> testCreateProcessDefinition(@RequestBody JsonNode body) {
+        ProcDefDTO dto = new ProcDefDTO();
+        dto.setProcDefName(body.get("procDefName").asText());
+        dto.setSourceBizType(SourceBizType.valueOf(body.get("sourceBizType").asText()));
+        List<NodeDTO> nodes = nodeConverter.convert(body.get("nodeList"));
+        dto.setNodeList(nodes);
+        workflowProcService.createProcessDefinition(dto);
+        return R.ok();
     }
 
     @GetMapping("/definition")

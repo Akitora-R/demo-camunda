@@ -13,15 +13,15 @@ public class DataProvider {
     @Getter
     private final Map<String, FormDataProvider<?>> formDataProviderMap;
     @Getter
-    private final Map<String, UserDataProvider> userDataProviderMap;
-    @Getter
     private final Map<SourceBizType, BizDataProvider<?, ?>> bizDataProviderMap;
+    @Getter
+    private final Map<String, BeanProvider<?>> beanProviderMap;
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public DataProvider(ApplicationContext applicationContext) {
         this.formDataProviderMap = (Map) applicationContext.getBeansOfType(FormDataProvider.class);
-        this.userDataProviderMap = applicationContext.getBeansOfType(UserDataProvider.class);
         this.bizDataProviderMap = (Map) applicationContext.getBeansOfType(BizDataProvider.class)
                 .values().stream().collect(Collectors.groupingBy(BizDataProvider::getType));
+        this.beanProviderMap = (Map) applicationContext.getBeansOfType(BeanProvider.class);
     }
 }

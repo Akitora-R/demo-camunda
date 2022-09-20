@@ -9,10 +9,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import me.aki.demo.camunda.constant.BpmnConstant;
 import me.aki.demo.camunda.entity.ProcDef;
-import me.aki.demo.camunda.entity.ProcDefVariable;
+import me.aki.demo.camunda.entity.VariableDef;
+import me.aki.demo.camunda.entity.VariableDefProp;
 import me.aki.demo.camunda.entity.VariableInst;
 import me.aki.demo.camunda.entity.dto.ProcDefDTO;
 import me.aki.demo.camunda.entity.dto.ProcInstDTO;
+import me.aki.demo.camunda.entity.dto.VariableDefDTO;
 import me.aki.demo.camunda.entity.dto.VariableInstDTO;
 import me.aki.demo.camunda.entity.dto.node.*;
 import me.aki.demo.camunda.entity.dto.node.impl.EdgeNodeDTO;
@@ -26,9 +28,10 @@ import me.aki.demo.camunda.entity.vo.ProcInstVO;
 import me.aki.demo.camunda.entity.vo.TaskVO;
 import me.aki.demo.camunda.enums.SourceBizType;
 import me.aki.demo.camunda.enums.VariableSourceType;
+import me.aki.demo.camunda.provider.BeanProvider;
 import me.aki.demo.camunda.provider.DataProvider;
-import me.aki.demo.camunda.provider.UserDataProvider;
 import me.aki.demo.camunda.util.BpmnUtil;
+import me.aki.demo.camunda.util.TreeUtils;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
@@ -56,7 +59,8 @@ public class WorkflowProcService {
     private final ProcDefNodeElementRelInfoService procDefNodeElementRelInfoService;
     private final FormDefService formDefService;
     private final RepositoryService repositoryService;
-    private final ProcDefVariableService procDefVariableService;
+    private final VariableDefService variableDefService;
+    private final VariableDefPropService variableDefPropService;
     private final SysUserService sysUserService;
     private final RuntimeService runtimeService;
     private final HistoryService historyService;
@@ -70,7 +74,8 @@ public class WorkflowProcService {
                                ProcDefNodeElementRelInfoService procDefNodeElementRelInfoService,
                                FormDefService formDefService,
                                RepositoryService repositoryService,
-                               ProcDefVariableService procDefVariableService,
+                               VariableDefService variableDefService,
+                               VariableDefPropService variableDefPropService,
                                SysUserService sysUserService,
                                RuntimeService runtimeService,
                                HistoryService historyService,
@@ -83,7 +88,8 @@ public class WorkflowProcService {
         this.procDefNodeElementRelInfoService = procDefNodeElementRelInfoService;
         this.formDefService = formDefService;
         this.repositoryService = repositoryService;
-        this.procDefVariableService = procDefVariableService;
+        this.variableDefService = variableDefService;
+        this.variableDefPropService = variableDefPropService;
         this.sysUserService = sysUserService;
         this.runtimeService = runtimeService;
         this.historyService = historyService;
@@ -126,7 +132,7 @@ public class WorkflowProcService {
         final var procDefId = procDef.getId();
         // 保存表单信息
         formDefService.saveDTO(procDefId, null, dto.getFormDef());
-        // 保存流程定义节点、节点属性、节点变量
+        // 保存流程定义节点、节点属性、节点变量、节点变量属性
         nodeList.forEach(nodeDTO -> {
             var pair = procDefNodeService.toEntity(nodeDTO);
             var procDefNode = pair.getKey();
@@ -140,10 +146,20 @@ public class WorkflowProcService {
                 Optional.ofNullable(formNodeDTO.getForm()).ifPresent(f -> formDefService.saveDTO(procDefId, procDefNodeId, f));
             }
             Optional.ofNullable(nodeDTO.getVariableList()).ifPresent(e -> e.forEach(v -> {
-                var procDefVariable = procDefVariableService.toEntity(v);
+                var procDefVariable = variableDefService.toEntity(v);
                 procDefVariable.setProcDefId(procDefId);
                 procDefVariable.setProcDefNodeId(procDefNodeId);
-                procDefVariableService.save(procDefVariable);
+                variableDefService.save(procDefVariable);
+                Optional.ofNullable(v.getPropList()).ifPresent(varProps -> TreeUtils.travelTreeBFS(varProps, VariableDefDTO.VariableDefPropDTO::getChildren, ni -> {
+                    VariableDefProp variableDefProp = new VariableDefProp();
+                    String parentId = Optional.ofNullable(ni.getParentNode()).map(VariableDefDTO.VariableDefPropDTO::getId).orElse("0");
+                    variableDefProp.setProcDefVariableId(procDefVariable.getId());
+                    variableDefProp.setParentPropId(parentId);
+                    variableDefProp.setPropKey(ni.getNode().getKey());
+                    variableDefProp.setPropVal(ni.getNode().getVal());
+                    variableDefPropService.save(variableDefProp);
+                    ni.getNode().setId(variableDefProp.getId());
+                }));
             }));
         });
     }
@@ -155,10 +171,10 @@ public class WorkflowProcService {
         // 从请求dto中收集提供的变量
         Map<String, VariableInstDTO> providedFormVar = Optional.ofNullable(dto.getVariableList()).orElse(Collections.emptyList())
                 .stream().collect(Collectors.toMap(VariableInstDTO::getSourceIdentifier, e -> e));
-        var requiredVar = procDefVariableService.lambdaQuery().eq(ProcDefVariable::getProcDefId, procDef.getId()).list();
-        var groupedRequiredVar = requiredVar.stream().collect(Collectors.groupingBy(ProcDefVariable::getSourceType));
+        var requiredVar = variableDefService.lambdaQuery().eq(VariableDef::getProcDefId, procDef.getId()).list();
+        var groupedRequiredVar = requiredVar.stream().collect(Collectors.groupingBy(VariableDef::getSourceType));
         // 获取流程定义要求的form变量
-        List<ProcDefVariable> requiredFormVar = groupedRequiredVar.getOrDefault(VariableSourceType.PROC_FORM, Collections.emptyList());
+        List<VariableDef> requiredFormVar = groupedRequiredVar.getOrDefault(VariableSourceType.PROC_FORM, Collections.emptyList());
         List<VariableInst> items = requiredFormVar.stream().map(e -> {
             String varId = e.getSourceIdentifier();
             String varKey = e.getVariableKey();
@@ -171,25 +187,28 @@ public class WorkflowProcService {
             return varInst;
         }).toList();
         ArrayList<VariableInst> varInstList = new ArrayList<>(items);
-        // 获取流程定义要求的user变量
-        List<ProcDefVariable> requiredBeanVar = groupedRequiredVar.getOrDefault(VariableSourceType.BEAN, Collections.emptyList());
-        Map<String, UserDataProvider> userBeans = dataProvider.getUserDataProviderMap();
-        items = requiredBeanVar.stream().map(e -> {
+        // 获取流程定义要求的bean变量
+        List<VariableDef> requiredBeanParamVar = groupedRequiredVar.getOrDefault(VariableSourceType.BEAN, Collections.emptyList());
+        Map<String, BeanProvider<?>> beanProviderMap = dataProvider.getBeanProviderMap();
+        items = requiredBeanParamVar.stream().map(e -> {
             String varId = e.getSourceIdentifier();
             String varKey = e.getVariableKey();
-            UserDataProvider userBean = userBeans.get(varId);
-            Assert.notNull(userBean, "变量缺失: required key:{} type:{}", varKey, e.getSourceType());
-            String varVal = userBean.getUser(sysUserService.getCurrentUser().getUserCode()).getId();
-            log.debug("set variable: {} - {}", varKey, varVal);
-            procVar.put(varKey, varVal);
+            BeanProvider<?> beanProvider = beanProviderMap.get(varId);
+            VariableDefDTO variableDefDTO = variableDefService.getDTOById(e.getId());
+            Object data = beanProvider.getData(variableDefDTO.getPropList());
             VariableInst varInst = new VariableInst();
             varInst.setVariableDefId(e.getId());
-            varInst.setVariableVal(varVal);
+            procVar.put(varKey, data);
+            try {
+                varInst.setVariableVal(objectMapper.writeValueAsString(data));
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
             return varInst;
         }).collect(Collectors.toList());
         varInstList.addAll(items);
         // 获取流程定义要求的来源业务变量
-        List<ProcDefVariable> requiredBizVar = groupedRequiredVar.getOrDefault(VariableSourceType.BIZ, Collections.emptyList());
+        List<VariableDef> requiredBizVar = groupedRequiredVar.getOrDefault(VariableSourceType.BIZ, Collections.emptyList());
         items = requiredBizVar.stream().map(e -> {
             String varId = e.getSourceIdentifier();
             String varKey = e.getVariableKey();
@@ -293,22 +312,39 @@ public class WorkflowProcService {
         var builder = Bpmn.createExecutableProcess().name(procName);
         AbstractFlowNodeBuilder<?, ?> s = builder.startEvent(start.getId()).name(start.getLabel());
         var idPair = new HashMap<String, List<String>>();
+        // 用于记录已经走过的节点
+        HashSet<String> vertexLog = new HashSet<>();
+        // 用于记录已经连接过的节点
+        HashSet<Pair<String,String>> linkLog = new HashSet<>();
         // 遍历json图并构建BpmnModelInstance
-        // FIXME: 2022/7/20 循环图尚未实现
         travelGraph(new NodeLink(null, null, start), edgeMap, nodeMap, nl -> {
-            log.debug("处理 node link pair：{}", nl);
+            var curr = nl.getCurr();
+            String currId = curr.getId();
             var ss = s;
-            ss = ss.moveToNode(nl.getPrevOutgoingNodeId());
+            String prevId = nl.getPrevOutgoingNodeId();
+            ss = ss.moveToNode(prevId);
             var condition = nl.getEdge().getCondition();
             if (condition != null && !condition.isEmpty()) {
                 ss.condition(null, condition);
             }
-            var curr = nl.getCurr();
+            Pair<String, String> currLinkPair = new Pair<>(prevId, currId);
+            if (vertexLog.contains(currId)) {
+                if (!linkLog.contains(currLinkPair)){
+                    log.debug("已经经过的node: {}, 连接到并跳过", currId);
+                    ss.connectTo(currId);
+                    linkLog.add(currLinkPair);
+                }
+                return;
+            }
+            log.debug("处理 node link pair：{}", nl);
             var bpmnId = curr.build(ss);
-            idPair.put(curr.getId(), bpmnId);
+            idPair.put(currId, bpmnId);
+            vertexLog.add(currId);
+            linkLog.add(currLinkPair);
         });
         BpmnModelInstance instance = s.done();
         var bpmnEdges = BpmnUtil.getElementByName(instance, BpmnConstant.SEQUENCE_FLOW_NAME);
+        log.debug("bpmn.xml:\n{}", BpmnUtil.toXmlStr(instance));
         log.debug("开始处理bpmn sequenceFlow，数量: {}", bpmnEdges.size());
         // 关联json edge 与bpmn sequenceFlow
         edges.forEach(edge -> {

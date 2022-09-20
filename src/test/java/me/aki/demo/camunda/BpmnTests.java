@@ -9,6 +9,7 @@ import me.aki.demo.camunda.entity.dto.node.NodeDTO;
 import me.aki.demo.camunda.entity.dto.node.NodeLink;
 import me.aki.demo.camunda.entity.dto.node.impl.EdgeNodeDTO;
 import me.aki.demo.camunda.entity.dto.node.impl.StartEventFlowNodeDTO;
+import me.aki.demo.camunda.util.BpmnUtil;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.GatewayDirection;
@@ -28,9 +29,9 @@ public class BpmnTests {
         BpmnModelInstance modelInstance = Bpmn.createExecutableProcess("process_e7b76d1b-b6f6-49db-b442-1904359131a1").name("GENERATED_PROC1")
                 .startEvent()
                 .userTask().name("主管审核会签").camundaAssignee("${chargerAssignee}")
-                    .multiInstance().parallel().camundaCollection("${chargerAssigneeList}").camundaElementVariable("chargerAssignee")
-                    .completionCondition("${!chargerApproval}")
-                    .multiInstanceDone()
+                .multiInstance().parallel().camundaCollection("${chargerAssigneeList}").camundaElementVariable("chargerAssignee")
+                .completionCondition("${!chargerApproval}")
+                .multiInstanceDone()
                 .exclusiveGateway()
                 .gatewayDirection(GatewayDirection.Diverging)
                 .condition("yes", "${chargerApproval}")
@@ -248,5 +249,19 @@ public class BpmnTests {
         for (var e : document.getElementsByNameNs(ns, "userTask")) {
             System.out.println(e.getAttribute("id"));
         }
+    }
+
+    @Test
+    void circularGraphTest() {
+        BpmnModelInstance bpmnModelInstance = Bpmn.createExecutableProcess().name("GENERATED_PROC1")
+                .startEvent("startEvent_1")
+                .exclusiveGateway("exclusiveGateway_1")
+                .userTask("userTask1")
+                .exclusiveGateway("exclusiveGateway_2")
+                .endEvent("endEvent_1")
+                .moveToNode("exclusiveGateway_1")
+                .userTask("userTask2").connectTo("exclusiveGateway_2")
+                .done();
+        System.out.println(BpmnUtil.toXmlStr(bpmnModelInstance));
     }
 }

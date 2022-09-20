@@ -10,7 +10,7 @@ import me.aki.demo.camunda.enums.VariableSourceType;
 
 /**
  * 该表反映一个流程中的所有需要的变量，该变量是否必填则由该变量的来源定义，
- * 变量的来源{@link ProcDefVariable#sourceType}目前一共有5种：
+ * 变量的来源{@link VariableDef#sourceType}目前一共有5种：
  * <ul>
  *     <li>BASE</li>
  *     员工的账号/部门等信息
@@ -18,7 +18,7 @@ import me.aki.demo.camunda.enums.VariableSourceType;
  *     流程表单
  *     <li>TASK_FORM</li>
  *     任务表单，来源为该类型时即要求该变量需要在完成任务时提供，
- *     并可以通过以{@link ProcDefVariable#sourceIdentifier}为表单key来获取。
+ *     并可以通过以{@link VariableDef#sourceIdentifier}为表单key来获取。
  *     <li>BEAN</li>
  *     通过实现了特定接口的Java Bean来获取数据，调用时可附加额外参数
  *     <li>BIZ</li>
@@ -28,8 +28,8 @@ import me.aki.demo.camunda.enums.VariableSourceType;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "流程变量定义")
-@TableName("WF_PROC_DEF_VARIABLE")
-public class ProcDefVariable extends BaseEntity {
+@TableName("WF_VARIABLE_DEF")
+public class VariableDef extends BaseEntity {
     @ApiModelProperty(name = "ID")
     @TableId
     private String id;

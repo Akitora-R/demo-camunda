@@ -1,6 +1,5 @@
 package me.aki.demo.camunda.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.extern.slf4j.Slf4j;
 import me.aki.demo.camunda.entity.dto.R;
 import me.aki.demo.camunda.enums.SourceBizType;
@@ -25,9 +24,9 @@ public class ResourceController {
         this.dataProvider = dataProvider;
     }
 
-    @GetMapping("/user/names")
-    public R<Collection<String>> getUserProviderNames() {
-        return R.ok(dataProvider.getUserDataProviderMap().keySet());
+    @GetMapping("/bean/names")
+    public R<Collection<String>> getBeanProviderNames() {
+        return R.ok(dataProvider.getBeanProviderMap().keySet());
     }
 
     @GetMapping("/form/names")
@@ -45,15 +44,6 @@ public class ResourceController {
         var p = dataProvider.getFormDataProviderMap().get(name);
         if (p != null) {
             return ResponseEntity.ok(R.ok(p.getData()));
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(R.fail());
-    }
-
-    @GetMapping("/user/data/{name}")
-    public ResponseEntity<R<?>> getUserDataByName(@PathVariable("name") String name) {
-        var p = dataProvider.getUserDataProviderMap().get(name);
-        if (p != null) {
-            return ResponseEntity.ok(R.ok(p.getUser("self_user_id")));
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(R.fail());
     }

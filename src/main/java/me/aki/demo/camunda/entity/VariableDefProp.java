@@ -8,8 +8,8 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("WF_PROC_DEF_VARIABLE_PROP")
-public class ProcDefVariableProp extends BaseEntity {
+@TableName("WF_VARIABLE_DEF_PROP")
+public class VariableDefProp extends BaseEntity {
     /**
      * ID
      */

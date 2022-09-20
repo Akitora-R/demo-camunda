@@ -1,6 +1,8 @@
 package me.aki.demo.camunda.entity.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import me.aki.demo.camunda.enums.VariableSourceType;
 
 import java.util.List;
@@ -11,11 +13,18 @@ public class VariableDefDTO {
     private VariableSourceType sourceType;
     private String sourceIdentifier;
     private Boolean required;
-    private List<VariableDefProp> propList;
+    private List<VariableDefPropDTO> propList;
 
     @Data
-    public static class VariableDefProp {
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class VariableDefPropDTO {
+        /**
+         * id是为了方便遍历树
+         */
+        private String id;
         private String key;
         private String val;
+        private List<VariableDefPropDTO> children;
     }
 }
