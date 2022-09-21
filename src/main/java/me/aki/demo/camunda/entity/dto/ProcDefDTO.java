@@ -1,5 +1,6 @@
 package me.aki.demo.camunda.entity.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import me.aki.demo.camunda.entity.dto.node.NodeDTO;
@@ -48,5 +49,7 @@ public class ProcDefDTO {
     @NotNull
     @Valid
     private FormDefDTO formDef;
+
+    private JsonNode originalJson;
 
 }

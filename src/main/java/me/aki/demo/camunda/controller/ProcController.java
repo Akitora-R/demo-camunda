@@ -45,18 +45,13 @@ public class ProcController {
     }
 
     @PostMapping("/definition")
-    public R<ProcDefDTO> createDefinition(@RequestBody @Validated ProcDefDTO dto) {
-        workflowProcService.createProcessDefinition(dto);
-        return R.ok(dto);
-    }
-
-    @PostMapping("/test/definition")
-    public R<Object> testCreateProcessDefinition(@RequestBody JsonNode body) {
+    public R<Object> createProcessDefinition(@RequestBody JsonNode body) {
         ProcDefDTO dto = new ProcDefDTO();
         dto.setProcDefName(body.get("procDefName").asText());
         dto.setSourceBizType(SourceBizType.valueOf(body.get("sourceBizType").asText()));
         List<NodeDTO> nodes = nodeConverter.convert(body.get("nodeList"));
         dto.setNodeList(nodes);
+        dto.setOriginalJson(body);
         workflowProcService.createProcessDefinition(dto);
         return R.ok();
     }

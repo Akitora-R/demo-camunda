@@ -192,7 +192,7 @@ public class TaskFlowNodeDTO implements CombinationNodeDTO, FormNodeDTO {
         String approveVarExp = String.format("${%s}", varName);
         String rejectVarExp = String.format("${!%s}", varName);
         if (isLoop) {
-            String generatedAssigneeVarName = UUID.randomUUID().toString().replace("-", "");
+            String generatedAssigneeVarName = "userTaskAssignee_" + UUID.randomUUID().toString().replace("-", "");
             String generatedAssigneeVar = String.format("${%s}", generatedAssigneeVarName);
             builder
                     .userTask().id(incomingNodeId).name(label).camundaAssignee(generatedAssigneeVar)
@@ -254,7 +254,7 @@ public class TaskFlowNodeDTO implements CombinationNodeDTO, FormNodeDTO {
      * @return bpmn中代表审核是否通过的变量的名称
      */
     public String getApprovalVarKey() {
-        return String.format("%s_approval", code);
+        return String.format("approval_%s", code);
     }
 
     /**
@@ -268,8 +268,9 @@ public class TaskFlowNodeDTO implements CombinationNodeDTO, FormNodeDTO {
      * @return bpmn中代表备注的变量的名称
      */
     private String getCommentVarKey() {
-        return String.format("%s_comment", code);
+        return String.format("comment_%s", code);
     }
+
     /**
      * @return bpmn中代表审核列表的变量的名称
      */

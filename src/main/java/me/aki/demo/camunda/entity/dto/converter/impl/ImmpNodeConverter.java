@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import me.aki.demo.camunda.constant.BeanProviderId;
+import me.aki.demo.camunda.constant.ImmpConstant;
 import me.aki.demo.camunda.entity.dto.VariableDefDTO;
 import me.aki.demo.camunda.entity.dto.converter.NodeConverter;
 import me.aki.demo.camunda.entity.dto.node.NodeDTO;
@@ -38,24 +39,24 @@ public class ImmpNodeConverter implements NodeConverter {
         switch (assigneeType) {
             case "SUPERIOR", "DEPT_HEAD", "ROLE" -> {
                 VariableDefDTO.VariableDefPropDTO propDTO = new VariableDefDTO.VariableDefPropDTO();
-                propDTO.setKey(assigneeType);
+                propDTO.setPropKey(assigneeType);
                 ArrayList<VariableDefDTO.VariableDefPropDTO> children = new ArrayList<>();
                 propDTO.setChildren(children);
                 for (JsonNode extParam : assigneeObj.get("data")) {
                     // TODO: 2022/9/16 做校验
-                    children.add(new VariableDefDTO.VariableDefPropDTO(null, extParam.get("key").asText(), extParam.get("val").asText(), null));
+                    children.add(new VariableDefDTO.VariableDefPropDTO(null, extParam.get(ImmpConstant.PROP_KEY_FIELD).asText(), extParam.get(ImmpConstant.PROP_KEY_FIELD).asText(), null));
                 }
                 return propDTO;
             }
             case "DESIGNATION" -> {
                 VariableDefDTO.VariableDefPropDTO propDTO = new VariableDefDTO.VariableDefPropDTO();
-                propDTO.setKey(assigneeType);
+                propDTO.setPropKey(assigneeType);
                 ArrayList<VariableDefDTO.VariableDefPropDTO> children = new ArrayList<>();
                 propDTO.setChildren(children);
                 for (JsonNode extParam : assigneeObj.get("data")) {
-                    if (extParam.get("key").asText("").equals("USER_LIST")) {
-                        children.add(new VariableDefDTO.VariableDefPropDTO(null, extParam.get("key").asText(), null,
-                                objectMapper.convertValue(extParam.get("val"), new TypeReference<List<String>>() {
+                    if (extParam.get(ImmpConstant.PROP_KEY_FIELD).asText().equals("USER_LIST")) {
+                        children.add(new VariableDefDTO.VariableDefPropDTO(null, extParam.get(ImmpConstant.PROP_KEY_FIELD).asText(), null,
+                                objectMapper.convertValue(extParam.get(ImmpConstant.PROP_VAL_FIELD), new TypeReference<List<String>>() {
                                 }).stream().map(e -> new VariableDefDTO.VariableDefPropDTO(null, null, e, null)).collect(Collectors.toList())));
                     }
                 }
@@ -63,7 +64,7 @@ public class ImmpNodeConverter implements NodeConverter {
             }
             case "SELF" -> {
                 VariableDefDTO.VariableDefPropDTO propDTO = new VariableDefDTO.VariableDefPropDTO();
-                propDTO.setKey(assigneeType);
+                propDTO.setPropKey(assigneeType);
                 return propDTO;
             }
             default -> throw new IllegalArgumentException();
@@ -79,7 +80,7 @@ public class ImmpNodeConverter implements NodeConverter {
             JsonNode data = jsonNode.get("data");
             String label = Optional.ofNullable(data.get("nodeName")).map(JsonNode::asText).orElse(null);
             node.setLabel(label);
-            node.setCode("userTaskCode_"+UUID.randomUUID().toString().replace("-",""));
+            node.setCode("userTaskCode_" + UUID.randomUUID().toString().replace("-", ""));
             ArrayList<VariableDefDTO> variableList = new ArrayList<>();
             JsonNode assigneeArray = data.get("approvalMan");
             Assert.isTrue(assigneeArray != null && assigneeArray.isArray() && !assigneeArray.isEmpty(), "审核节点: {} 未配置审核人", id);
@@ -148,23 +149,9 @@ public class ImmpNodeConverter implements NodeConverter {
                 EdgeNodeDTO edge = new EdgeNodeDTO();
                 edge.setId(id);
                 if ((n = idNodeMap.get(sourceId)).get("shape").asText().equals("proviso") || n.get("shape").asText().equals("default")) {
-                    for (JsonNode node1 : jsonNode) {
-                        if (JsonNodeShape.EDGE.toString().equals(node1.get("shape").asText()) && node1.get(targetFiledName).asText().equals(n.get("id").asText())) {
-                            sourceId = idNodeMap.get(node1.get(sourceFiledName).asText()).get("id").asText();
-                            if (n.get("data") != null) {
-                                edge.setCondition(Optional.ofNullable(n.get("data").get("condition")).map(JsonNode::asText).orElse(null));
-                            }
-                        }
-                    }
+                    sourceId = getReplacement(jsonNode, idNodeMap, sourceFiledName, targetFiledName, sourceId, n, edge);
                 } else if ((n = idNodeMap.get(targetId)).get("shape").asText().equals("proviso") || n.get("shape").asText().equals("default")) {
-                    for (JsonNode node1 : jsonNode) {
-                        if (JsonNodeShape.EDGE.toString().equals(node1.get("shape").asText()) && node1.get(sourceFiledName).asText().equals(n.get("id").asText())) {
-                            targetId = idNodeMap.get(node1.get(targetFiledName).asText()).get("id").asText();
-                            if (n.get("data") != null) {
-                                edge.setCondition(Optional.ofNullable(n.get("data").get("condition")).map(JsonNode::asText).orElse(null));
-                            }
-                        }
-                    }
+                    targetId = getReplacement(jsonNode, idNodeMap, targetFiledName, sourceFiledName, targetId, n, edge);
                 }
                 edge.setSource(sourceId);
                 edge.setTarget(targetId);
@@ -175,6 +162,53 @@ public class ImmpNodeConverter implements NodeConverter {
             }
         }
         return edges;
+    }
+
+    private String getReplacement(JsonNode jsonNode, Map<String, JsonNode> idNodeMap, String sourceFiledName, String targetFiledName, String sourceId, JsonNode n, EdgeNodeDTO edge) {
+        for (JsonNode node1 : jsonNode) {
+            if (JsonNodeShape.EDGE.toString().equals(node1.get("shape").asText()) && node1.get(targetFiledName).asText().equals(n.get("id").asText())) {
+                sourceId = idNodeMap.get(node1.get(sourceFiledName).asText()).get("id").asText();
+                JsonNode dataNode = n.get("data");
+                if (dataNode != null) {
+                    edge.setCondition(Optional.ofNullable(dataNode.get("condition")).map(JsonNode::asText).orElse(null));
+                    edge.setVariableList(getVarList(dataNode.get("variableList")));
+                }
+            }
+        }
+        return sourceId;
+    }
+
+    private List<VariableDefDTO> getVarList(JsonNode jsonNode) {
+        ArrayList<VariableDefDTO> varList = new ArrayList<>();
+        Optional.ofNullable(jsonNode).ifPresent(vl -> vl.forEach(v -> {
+            String variableKey = Optional.ofNullable(v.get("variableKey")).map(JsonNode::asText).orElse(null);
+            VariableSourceType sourceType = VariableSourceType.valueOf(v.get("sourceType").asText());
+            String sourceIdentifier = Optional.ofNullable(v.get("sourceIdentifier")).map(JsonNode::asText).orElse(null);
+            Boolean required = Optional.ofNullable(v.get("required")).map(JsonNode::asBoolean).orElse(false);
+            VariableDefDTO dto = new VariableDefDTO();
+            dto.setVariableKey(variableKey);
+            dto.setSourceType(sourceType);
+            dto.setSourceIdentifier(sourceIdentifier);
+            dto.setRequired(required);
+            dto.setPropList(getVarPropList(v.get("propList")));
+            varList.add(dto);
+        }));
+        return varList;
+    }
+
+    private List<VariableDefDTO.VariableDefPropDTO> getVarPropList(JsonNode jsonNode) {
+        if (jsonNode == null || !jsonNode.isArray()) {
+            return Collections.emptyList();
+        }
+        ArrayList<VariableDefDTO.VariableDefPropDTO> l = new ArrayList<>();
+        for (JsonNode node : jsonNode) {
+            VariableDefDTO.VariableDefPropDTO prop = new VariableDefDTO.VariableDefPropDTO();
+            prop.setPropKey(Optional.ofNullable(node.get("propKey")).map(JsonNode::asText).orElse(null));
+            prop.setPropVal(Optional.ofNullable(node.get("propVal")).map(JsonNode::asText).orElse(null));
+            prop.setChildren(getVarPropList(node.get("children")));
+            l.add(prop);
+        }
+        return l;
     }
 
     private Map<String, JsonNode> toNodeMap(JsonNode jsonNode) {

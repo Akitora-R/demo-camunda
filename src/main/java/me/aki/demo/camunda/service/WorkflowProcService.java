@@ -128,6 +128,7 @@ public class WorkflowProcService {
         var procDef = procDefService.toEntity(dto);
         procDef.setCamundaProcDefId(pd.getId());
         procDef.setCamundaProcDefKey(pd.getKey());
+        procDef.setOriginalJson(dto.getOriginalJson().toString());
         procDefService.save(procDef);
         final var procDefId = procDef.getId();
         // 保存表单信息
@@ -155,8 +156,8 @@ public class WorkflowProcService {
                     String parentId = Optional.ofNullable(ni.getParentNode()).map(VariableDefDTO.VariableDefPropDTO::getId).orElse("0");
                     variableDefProp.setProcDefVariableId(procDefVariable.getId());
                     variableDefProp.setParentPropId(parentId);
-                    variableDefProp.setPropKey(ni.getNode().getKey());
-                    variableDefProp.setPropVal(ni.getNode().getVal());
+                    variableDefProp.setPropKey(ni.getNode().getPropKey());
+                    variableDefProp.setPropVal(ni.getNode().getPropVal());
                     variableDefPropService.save(variableDefProp);
                     ni.getNode().setId(variableDefProp.getId());
                 }));

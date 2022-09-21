@@ -23,8 +23,8 @@ public class VariableDefDTO {
          * id是为了方便遍历树
          */
         private String id;
-        private String key;
-        private String val;
+        private String propKey;
+        private String propVal;
         private List<VariableDefPropDTO> children;
     }
 }

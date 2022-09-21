@@ -23,6 +23,9 @@ public class FormDefServiceImpl extends ServiceImpl<FormDefMapper, FormDef> impl
 
     @Override
     public void saveDTO(String procDefId, String procDefNodeId, FormDefDTO dto) {
+        if (dto == null) {
+            return;
+        }
         FormDef formDef = dto.getFormDef();
         formDef.setProcDefId(procDefId);
         formDef.setProcDefNodeId(procDefNodeId);

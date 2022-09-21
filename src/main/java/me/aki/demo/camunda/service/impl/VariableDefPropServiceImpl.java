@@ -20,8 +20,8 @@ public class VariableDefPropServiceImpl extends ServiceImpl<VariableDefPropMappe
     public VariableDefDTO.VariableDefPropDTO toDTO(VariableDefProp entity) {
         VariableDefDTO.VariableDefPropDTO dto = new VariableDefDTO.VariableDefPropDTO();
         dto.setId(entity.getId());
-        dto.setKey(entity.getPropKey());
-        dto.setVal(entity.getPropVal());
+        dto.setPropKey(entity.getPropKey());
+        dto.setPropVal(entity.getPropVal());
         return dto;
     }
 }
